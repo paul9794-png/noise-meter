@@ -586,15 +586,51 @@ const CALM = {
   1:['這樣還可以……我要躺回去了……','好啦好啦，我原諒你們……'],
   0:['那我……繼續睡囉……晚安……','呼……謝謝大家……我回去做夢了……','好安靜……我最喜歡 607 了……Zzz']
 };
-const DREAMS = [
-  '💭（夢話）雞排……再加辣……',
-  '💭（夢話）607……是全校最安靜的班……',
-  '💭（夢話）呼嚕……老師今天好漂亮……',
-  '💭（夢話）不要搶我的布丁……',
-  '💭（夢話）我……一隻眼睛……也能考一百分……',
-  '💭（夢話）好安靜喔……好舒服……',
-  '💭（夢話）下次……換我當班長……'
+/* 夢話：夢到同學做好事（名字中間的字改成「小」，程式裡不放完整姓名） */
+const KIDS = [
+  ...['高小薺','古小雋','陳小睿','劉小翰','陳小穎','陳小愷','戴小荃','周小諶','林小莛','何小諹','陳小翰'].map(n=>({n, g:'b'})),   // 1–11 號男生
+  ...['林小言','陳小安','尤小宇','林小劭','柯小妤','蕭小筑','黃小榆','宮澤小葵','錢小紜','蕭小錂','陳小樂','謝小喬'].map(n=>({n, g:'g'}))   // 21–33 號女生
 ];
+const DREAM_ALL = [
+  '我夢到……{n}把地上的垃圾撿起來了……好棒喔……',
+  '我夢到……{n}借橡皮擦給忘記帶的同學……',
+  '我夢到……{n}扶起跌倒的同學，還問他痛不痛……',
+  '我夢到……{n}主動幫老師擦黑板……擦得亮晶晶……',
+  '我夢到……{n}排隊乖乖的，一次都沒有插隊……',
+  '我夢到……{n}耐心地教同學寫不會的數學題……',
+  '我夢到……{n}把營養午餐吃光光，還幫忙收餐桶……',
+  '我夢到……{n}跟打掃阿姨說謝謝，阿姨笑得好開心……',
+  '我夢到……{n}安慰難過的同學，陪他一起想辦法……',
+  '我夢到……{n}的作業寫得超工整，老師給了三個讚……',
+  '我夢到……{n}幫同學把掉在地上的鉛筆撿起來……',
+  '我夢到……{n}看到有人需要幫忙，第一個舉手……',
+  '我夢到……{n}把教室的燈和電扇隨手關掉，好環保……',
+  '我夢到……{n}說到做到，答應的事都有完成……'
+];
+const DREAM_B = [
+  '我夢到……{n}好帥喔……帥到我的眼睛閃閃發光……',
+  '我夢到……{n}打球超帥，還把球讓給別人玩……',
+  '我夢到……{n}帥氣地幫忙搬一大疊作業本……',
+  '我夢到……{n}又帥又有禮貌，見到老師都會打招呼……'
+];
+const DREAM_G = [
+  '我夢到……{n}好漂亮喔……漂亮到月亮都害羞了……',
+  '我夢到……{n}笑起來好甜，大家都跟著開心起來……',
+  '我夢到……{n}好漂亮，還溫柔地幫同學綁鞋帶……',
+  '我夢到……{n}又漂亮又貼心，主動幫忙發作業簿……'
+];
+let kidDeck = [], lastTpl = '';
+function nextDream(){
+  if(!kidDeck.length){                       // 每位同學都輪到一次才會重複
+    kidDeck = KIDS.slice();
+    for(let i=kidDeck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [kidDeck[i],kidDeck[j]]=[kidDeck[j],kidDeck[i]]; }
+  }
+  const k = kidDeck.pop();
+  const pool = DREAM_ALL.concat(k.g==='b' ? DREAM_B : DREAM_G).filter(t=>t!==lastTpl);
+  const tpl = pool[Math.floor(Math.random()*pool.length)];
+  lastTpl = tpl;
+  return '💭（夢話）' + tpl.replace('{n}', k.n);
+}
 let lastLine = '';
 function pick(arr){
   if(arr.length < 2) return arr[0];
@@ -729,7 +765,7 @@ function begin(){
   running = true;
   lastTick = performance.now();
   quietSince = performance.now();
-  nextDreamAt = performance.now() + 45000;
+  nextDreamAt = performance.now() + 30000;
   keepAwake();
   requestAnimationFrame(loop);
 }
@@ -789,8 +825,8 @@ function loop(now){
     if(streak > bestMs){ bestMs = streak; $('bestTime').textContent = fmt(bestMs); }
     $('quietTime').textContent = fmt(quietMs);
     if(cfg.dream !== false && now >= nextDreamAt){
-      showBubble(pick(DREAMS), true, 4500);
-      nextDreamAt = now + 60000 + Math.random()*40000;
+      showBubble(nextDream(), true, 6000);
+      nextDreamAt = now + 40000 + Math.random()*30000;
     }
   }
   requestAnimationFrame(loop);
@@ -817,7 +853,7 @@ function setState(n, now){
   const rising = n > state;
   if(state === 0 && n >= 1){ wakeCount++; $('wakeCount').textContent = wakeCount; }
   if(n === 4){ rageCount++; $('rageCount').textContent = rageCount; }
-  if(n === 0){ quietSince = now || performance.now(); nextDreamAt = quietSince + 45000; }
+  if(n === 0){ quietSince = now || performance.now(); nextDreamAt = quietSince + 30000; }
   state = n;
   document.body.className = document.body.className.replace(/\bs\d\b/g,'').trim() + ' s'+n;
   bgs.forEach((b,i)=>b.classList.toggle('on', i===n));
