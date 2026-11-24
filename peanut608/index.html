@@ -201,9 +201,17 @@ body.s0 #peanut .breath{animation:breathe 3.6s ease-in-out infinite;}
 @keyframes breathe{50%{transform:scaleY(1.025) translateY(-3px);}}
 #peanut .breath{transform-box:fill-box;transform-origin:50% 100%;}
 
-/* 睡帽（醒來就飛走） */
-#cap{transition:opacity .4s,transform .5s;transform-box:view-box;transform-origin:200px 60px;}
-body:not(.s0) #cap{opacity:0;transform:translate(70px,-50px) rotate(30deg);}
+/* 睡覺：躺下來、蓋棉被、枕枕頭；醒來就坐起來、棉被滑掉 */
+#bed{transition:opacity .5s ease, transform .7s cubic-bezier(.3,1.3,.5,1);transform-box:view-box;transform-origin:280px 420px;}
+body:not(.s0) #bed{opacity:0;transform:translate(60px,40px) rotate(8deg);}
+#pillow{transition:opacity .4s ease, transform .6s ease;}
+body:not(.s0) #pillow{opacity:0;transform:translateY(30px);}
+#face{transform-box:view-box;transform-origin:200px 140px;transition:transform .8s cubic-bezier(.3,1.25,.5,1);}
+body.s0 #face{transform:translate(0px,-46px) rotate(90deg);}   /* 躺下時臉轉正，看得到睡臉 */
+body.s0 .arm{opacity:0;}                                       /* 手收進棉被裡 */
+#quilt{transform-box:fill-box;transform-origin:50% 100%;}
+body.s0 #quilt{animation:quiltBreath 3.6s ease-in-out infinite;}
+@keyframes quiltBreath{50%{transform:scaleY(1.035);}}
 
 /* 鼻涕泡泡 */
 #snot{opacity:0;transform-box:fill-box;transform-origin:0% 50%;}
@@ -284,8 +292,8 @@ body.s4 #armL,body.s4 #armR{animation:fist .25s ease-in-out infinite alternate;}
 @keyframes fist{to{translate:0 -8px;}}
 
 /* 整顆花生的動作 */
-#whole{transform-box:view-box;transform-origin:200px 420px;}
-body.s0 #whole{transform:rotate(-4deg);}
+#whole{transform-box:view-box;transform-origin:200px 210px;transition:transform .8s cubic-bezier(.3,1.25,.5,1);}
+body.s0 #whole{transform:translate(4px,118px) rotate(-90deg) scale(.92);}
 body.s1 #whole{animation:bob 2.4s ease-in-out infinite;}
 @keyframes bob{50%{transform:translateY(-6px);}}
 body.s3 #whole{animation:stomp .5s ease-in-out infinite;}
@@ -341,6 +349,12 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
           <radialGradient id="scleraG" cx="45%" cy="38%" r="65%">
             <stop offset="0" stop-color="#ffffff"/><stop offset=".75" stop-color="#f4f2ee"/><stop offset="1" stop-color="#d9d2c6"/>
           </radialGradient>
+          <linearGradient id="quiltG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffb3cf"/><stop offset=".55" stop-color="#f58fb8"/><stop offset="1" stop-color="#d9709f"/>
+          </linearGradient>
+          <linearGradient id="pillowG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e3ebfb"/>
+          </linearGradient>
           <radialGradient id="groundG" cx="50%" cy="50%" r="50%">
             <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
           </radialGradient>
@@ -349,12 +363,19 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
         <ellipse id="ground" cx="200" cy="428" rx="130" ry="14" fill="url(#groundG)"/>
 
         <g id="zzz">
-          <text x="290" y="70" font-size="34">Z</text>
-          <text x="306" y="54" font-size="26">z</text>
-          <text x="320" y="40" font-size="20">z</text>
+          <text x="96" y="214" font-size="34">Z</text>
+          <text x="114" y="196" font-size="26">z</text>
+          <text x="130" y="182" font-size="20">z</text>
         </g>
         <g id="luck" font-size="22">
-          <text x="56" y="250">💛</text><text x="330" y="300">✨</text><text x="70" y="340">🍀</text>
+          <text x="300" y="250">💛</text><text x="356" y="282">✨</text><text x="232" y="232">🍀</text>
+        </g>
+
+        <g id="pillow">
+          <ellipse cx="96" cy="402" rx="96" ry="26" fill="#000" opacity=".18"/>
+          <path d="M8,392 C8,366 40,356 98,356 C156,356 188,366 188,392 C188,416 156,424 98,424 C40,424 8,416 8,392 Z" fill="url(#pillowG)" stroke="#3b2614" stroke-width="4"/>
+          <path d="M30,380 C70,372 128,372 168,380" fill="none" stroke="#c9d7f5" stroke-width="3" stroke-linecap="round"/>
+          <path d="M24,404 C70,412 128,412 172,404" fill="none" stroke="#c9d7f5" stroke-width="3" stroke-linecap="round"/>
         </g>
 
         <g id="whole">
@@ -408,13 +429,7 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
               <use href="#bodyShape" fill="url(#shade)"/>
               <use href="#bodyShape" fill="url(#hl)"/>
             </g>
-            <!-- 肚子上的小葉子＝好事發生 -->
-            <g transform="translate(200 300)">
-              <path d="M0,0 C-14,-22 -34,-20 -36,-4 C-24,4 -10,6 0,0 Z" fill="#7cc576" stroke="#3b2614" stroke-width="3"/>
-              <path d="M0,0 C14,-22 34,-20 36,-4 C24,4 10,6 0,0 Z" fill="#94d68b" stroke="#3b2614" stroke-width="3"/>
-              <path d="M0,0 L0,16" stroke="#3b2614" stroke-width="3" stroke-linecap="round"/>
-            </g>
-
+            <g id="face">
             <!-- 腮紅 -->
             <g id="blush" fill="#ff8fa3" opacity=".6">
               <ellipse cx="134" cy="168" rx="18" ry="10"/><ellipse cx="266" cy="168" rx="18" ry="10"/>
@@ -502,13 +517,28 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
               <ellipse cx="200" cy="238" rx="14" ry="5" fill="#e0405a"/>
             </g>
 
-            <!-- 睡帽 -->
-            <g id="cap" transform="translate(0 -26)">
-              <path class="line" fill="#6c8cf0" d="M120,92 C140,52 220,36 268,62 C290,42 316,28 342,38 C330,52 318,72 300,90 C252,66 170,68 120,92 Z"/>
-              <path class="line" fill="#fff" stroke-width="4" d="M114,96 C164,68 246,64 304,92 L298,106 C246,82 166,84 120,110 Z"/>
-              <circle class="line" cx="346" cy="40" r="14" fill="#fff" stroke-width="4"/>
-              <g fill="#ffe27a"><circle cx="186" cy="66" r="4"/><circle cx="232" cy="62" r="3"/><circle cx="276" cy="70" r="3.5"/><circle cx="156" cy="78" r="3"/></g>
             </g>
+          </g>
+        </g>
+
+        <!-- 棉被 -->
+        <g id="bed">
+          <g id="quilt">
+            <path d="M176,428 C172,362 186,304 232,286 C262,266 320,270 372,286 C400,296 418,318 420,352 C424,390 418,414 412,428 Z"
+                  fill="url(#quiltG)" stroke="#3b2614" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M156,318 C200,296 280,288 360,302" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="10" stroke-linecap="round"/>
+            <path d="M168,300 C206,282 284,272 372,290" fill="none" stroke="#3b2614" stroke-width="4" stroke-dasharray="2 9" stroke-linecap="round" opacity=".55"/>
+            <g fill="none" stroke="#3b2614" stroke-opacity=".28" stroke-width="3" stroke-dasharray="6 8">
+              <path d="M240,300 C236,340 236,390 240,426"/><path d="M320,292 C318,340 318,390 322,426"/>
+              <path d="M160,372 C240,362 330,362 418,370"/>
+            </g>
+            <g fill="#fff6c4" stroke="#3b2614" stroke-width="2" stroke-linejoin="round">
+              <path d="M200,340 l4,9 10,1 -8,6 3,10 -9,-6 -9,6 3,-10 -8,-6 10,-1 Z"/>
+              <path d="M282,396 l3,7 8,1 -6,5 2,8 -7,-5 -7,5 2,-8 -6,-5 8,-1 Z"/>
+              <path d="M362,334 l3,7 8,1 -6,5 2,8 -7,-5 -7,5 2,-8 -6,-5 8,-1 Z"/>
+            </g>
+            <g fill="#fff" opacity=".7"><circle cx="270" cy="336" r="4"/><circle cx="350" cy="400" r="3.5"/><circle cx="196" cy="404" r="3.5"/><circle cx="392" cy="372" r="3"/></g>
+            <path d="M176,428 L412,428" stroke="#3b2614" stroke-width="5" stroke-linecap="round"/>
           </g>
         </g>
       </svg>
