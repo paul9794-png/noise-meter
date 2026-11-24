@@ -96,6 +96,16 @@ body.s4 .badge{background:#ff2a1f;border-color:#fff;animation:pulse .5s ease-in-
 .bubble.dream{background:rgba(18,26,66,.78);color:#e8eeff;border:2px dashed rgba(255,255,255,.45);
   font-size:clamp(.95rem,2vw,1.4rem);font-weight:700;backdrop-filter:blur(6px);}
 .bubble.dream::after{display:none;}
+/* 掉落堆疊的夢話 */
+#dreamLayer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden;}
+.dropb{position:absolute;left:0;top:0;will-change:transform;
+  background:rgba(18,26,66,.86);color:#eef2ff;border:2px dashed rgba(255,255,255,.5);border-radius:18px;
+  padding:7px 13px;font-size:clamp(.8rem,1.35vw,1rem);font-weight:800;line-height:1.4;letter-spacing:.5px;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.8);backdrop-filter:blur(4px);}
+.dropb.new{animation:dreamIn .45s cubic-bezier(.175,.885,.32,1.4);}
+.dropb.landed{background:rgba(30,40,92,.92);}
+@keyframes dreamIn{from{opacity:0;scale:.4}}
+.dropb.pop{transition:opacity .45s, scale .45s;opacity:0;scale:1.4;}
 body.s3 .bubble{background:#fff2d6;color:#8a1c1c;}
 body.s3 .bubble::after{border-right-color:#fff2d6;}
 body.s4 .bubble{background:#1a0003;color:#ff4a3d;border:3px solid #ff4a3d;font-size:clamp(1.2rem,3vw,2.3rem);animation:bshake .12s linear infinite;}
@@ -277,6 +287,7 @@ body.s4{--skin:#e8584e;--skin-dark:#b0302b;}
 <div class="shooting"></div>
 <div class="moon"></div>
 <div class="embers" id="embers"></div>
+<div id="dreamLayer"></div>
 
 <div class="app">
   <div class="top">
@@ -530,6 +541,7 @@ body.s4{--skin:#e8584e;--skin-dark:#b0302b;}
   </div>
 </div>
 
+<script src="matter.min.js"></script>
 <script>
 /* ===================== 放到網路上之後，可把網址貼在這裡 =====================
    協作平台若用「嵌入程式碼」放這個頁面，「開新視窗」按鈕會連到這個網址。
@@ -827,7 +839,7 @@ function loop(now){
     if(streak > bestMs){ bestMs = streak; $('bestTime').textContent = fmt(bestMs); }
     $('quietTime').textContent = fmt(quietMs);
     if(cfg.dream !== false && now >= nextDreamAt){
-      showBubble(nextDream(), true, DREAM_SHOW);
+      spawnDream(nextDream());
       nextDreamAt = now + DREAM_SHOW + DREAM_GAP_MIN + Math.random()*(DREAM_GAP_MAX - DREAM_GAP_MIN);
     }
   }
@@ -840,6 +852,100 @@ function fmt(ms){
 }
 
 let bubbleTimer = null;
+/* ===================== 夢話掉落物理（Matter.js） =====================
+   夢話先在巨人左邊或右邊浮著顯示 DREAM_SHOW 毫秒，然後自由落體掉到地上堆起來；
+   巨人醒來時全部消失。 */
+const Phys = (()=>{
+  if(typeof Matter === 'undefined') return null;
+  const {Engine, Runner, Bodies, Body, Composite, Events, Query} = Matter;
+  const engine = Engine.create({ gravity:{ x:0, y:1.1 } });
+  const runner = Runner.create();
+  Runner.run(runner, engine);
+  let walls = [];
+  const items = [];                    // {body, el, falling}
+  function bounds(){
+    const vw = innerWidth, vh = innerHeight;
+    const bottom = document.querySelector('.meter-row') && document.querySelector('.meter-row').parentElement;
+    const floorY = bottom ? bottom.getBoundingClientRect().top - 4 : vh - 60;
+    const wrap = document.querySelector('.cy-wrap').getBoundingClientRect();
+    return { vw, vh, floorY, gl: wrap.left + 10, gr: wrap.right - 10, gtop: wrap.top + wrap.height*0.15 };
+  }
+  function buildWalls(){
+    Composite.remove(engine.world, walls);
+    const b = bounds(), T = 200;
+    walls = [
+      Bodies.rectangle(b.vw/2, b.floorY + T/2, b.vw*3, T, { isStatic:true, friction:0.9 }),           // 地面
+      Bodies.rectangle(-T/2, b.vh/2, T, b.vh*4, { isStatic:true }),                                    // 左牆
+      Bodies.rectangle(b.vw + T/2, b.vh/2, T, b.vh*4, { isStatic:true }),                              // 右牆
+      Bodies.rectangle((b.gl+b.gr)/2, (b.gtop + b.floorY)/2, Math.max(40, b.gr-b.gl), b.floorY - b.gtop,
+        { isStatic:true, chamfer:{ radius:60 }, friction:0.3 })                                          // 巨人（擋住，讓夢話堆在兩旁）
+    ];
+    Composite.add(engine.world, walls);
+  }
+  buildWalls();
+  let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(buildWalls, 200); });
+
+  Events.on(engine, 'afterUpdate', ()=>{
+    for(const it of items){
+      const {x, y} = it.body.position;
+      it.el.style.transform = `translate(${x - it.w/2}px, ${y - it.h/2}px) rotate(${it.body.angle}rad)`;
+      if(it.falling && !it.landed && it.body.speed < 0.15){ it.landed = true; it.el.classList.add('landed'); }
+    }
+  });
+
+  let side = 0;
+  function spawn(text){
+    const b = bounds();
+    const layer = document.getElementById('dreamLayer');
+    const el = document.createElement('div');
+    el.className = 'dropb new';
+    el.textContent = text;
+    const leftW = b.gl, rightW = b.vw - b.gr;
+    const useLeft = (side++ % 2 === 0);
+    const regionL = useLeft ? 0 : b.gr, regionW = useLeft ? leftW : rightW;
+    el.style.maxWidth = Math.max(140, Math.min(290, regionW - 24)) + 'px';
+    el.style.visibility = 'hidden';
+    layer.appendChild(el);
+    const w = el.offsetWidth, h = el.offsetHeight;
+    el.style.visibility = '';
+    const x = regionL + regionW/2 + (Math.random()*30 - 15);
+    let y = Math.max(h/2 + 70, b.vh*0.16 + (Math.random()*30));
+    // 那一邊已經堆滿到上面了：直接從畫面上方掉下來
+    const crowded = Query.region(items.map(i=>i.body), { min:{x:x-w/2, y:y-h/2}, max:{x:x+w/2, y:y+h/2} }).length > 0;
+    if(crowded) y = -h;
+    const body = Bodies.rectangle(x, y, w, h, { chamfer:{ radius:16 },
+      restitution:0.25, friction:0.7, frictionStatic:0.9, density:0.002 });
+    if(!crowded) Body.setStatic(body, true);   // 先固定在空中（之後 setStatic(false) 才能正確恢復質量）
+    Composite.add(engine.world, body);
+    const it = { body, el, w, h, falling:false, landed:false };
+    items.push(it);
+    el.style.transform = `translate(${x - w/2}px, ${y - h/2}px)`;
+    if(crowded){ it.falling = true; el.classList.remove('new'); return; }
+    setTimeout(()=>{
+      if(!items.includes(it)) return;
+      Body.setStatic(it.body, false);
+      Body.setAngularVelocity(it.body, (Math.random()-.5)*0.08);
+      Body.setVelocity(it.body, { x:(Math.random()-.5)*1.5, y:0 });
+      it.falling = true;
+      el.classList.remove('new');
+    }, DREAM_SHOW);
+  }
+  function clear(){
+    for(const it of items.splice(0)){
+      Composite.remove(engine.world, it.body);
+      it.el.classList.add('pop');
+      setTimeout(()=>it.el.remove(), 480);
+    }
+  }
+  return { spawn, clear, count:()=>items.length };
+})();
+
+function spawnDream(text){
+  if(Phys) Phys.spawn(text);
+  else showBubble(text, true, DREAM_SHOW);      // 萬一物理引擎沒載入，退回原本的樣子
+}
+function clearDreams(){ if(Phys) Phys.clear(); }
+
 function showBubble(text, dream, hideAfter){
   const b = $('bubble');
   clearTimeout(bubbleTimer);
@@ -853,7 +959,7 @@ function showBubble(text, dream, hideAfter){
 function setState(n, now){
   if(n === state) return;
   const rising = n > state;
-  if(state === 0 && n >= 1){ wakeCount++; $('wakeCount').textContent = wakeCount; }
+  if(state === 0 && n >= 1){ wakeCount++; $('wakeCount').textContent = wakeCount; clearDreams(); }
   if(n === 4){ rageCount++; $('rageCount').textContent = rageCount; }
   if(n === 0){ quietSince = now || performance.now(); nextDreamAt = quietSince + DREAM_FIRST; }
   state = n;
