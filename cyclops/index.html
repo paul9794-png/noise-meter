@@ -668,7 +668,6 @@ const DREAM_ALL = [
   '我夢到……{n}跟警衛伯伯說早安，伯伯好開心……',
   '我夢到……{n}幫生病請假的同學抄聯絡簿……',
   '我夢到……{n}上課專心聽講，眼睛亮晶晶……',
-  '我夢到……{n}犯錯了也勇敢承認，沒有找藉口……',
   '我夢到……{n}稱讚別人的優點，大家感情更好了……',
   '我夢到……{n}自動自發寫完作業才去玩……',
   '我夢到……{n}幫忙把走廊上的水擦乾，怕大家滑倒……',
@@ -880,8 +879,8 @@ function readLevel(){
 
 /* ===================== 狀態機 ===================== */
 let state=0, upSince=null, downSince=null, lastTick=0;
-/* 夢話時間：睡著 8 秒後第一句；每句顯示 10 秒；說完停 10–15 秒再說下一句 */
-const DREAM_FIRST = 8000, DREAM_SHOW = 10000, DREAM_GAP_MIN = 10000, DREAM_GAP_MAX = 15000;
+/* 夢話時間：睡著 8 秒後第一句；每句顯示 8 秒；說完停 10–15 秒再說下一句 */
+const DREAM_FIRST = 8000, DREAM_SHOW = 8000, DREAM_GAP_MIN = 10000, DREAM_GAP_MAX = 15000;
 let quietMs=0, bestMs=0, quietSince=0, wakeCount=0, rageCount=0, muteUntil=0, nextDreamAt=0;
 
 function targetFor(level){
@@ -949,6 +948,7 @@ const Phys = (()=>{
   Runner.run(runner, engine);
   let walls = [];
   const items = [];                    // {body, el, falling}
+  const SHRINK_TO = 0.5, SHRINK_MS = 1600;   // 掉落時縮到一半，約 1.6 秒縮完
   const MAX_DREAMS = 20;               // 累計 20 句後，慢慢全部消失再重來
   let fadeTimer = null;
   function checkFull(){
@@ -988,8 +988,14 @@ const Phys = (()=>{
 
   Events.on(engine, 'afterUpdate', ()=>{
     for(const it of items.concat(fading)){
+      // 掉下來時，字卡在 SHRINK_MS 內慢慢縮小到 SHRINK_TO（約二分之一），物理大小也跟著縮
+      if(it.falling && it.scale > SHRINK_TO){
+        const t = (performance.now() - it.dropAt) / SHRINK_MS;
+        const target = Math.max(SHRINK_TO, 1 - (1 - SHRINK_TO) * Math.min(1, t));
+        if(target < it.scale){ Body.scale(it.body, target/it.scale, target/it.scale); it.scale = target; }
+      }
       const {x, y} = it.body.position;
-      it.el.style.transform = `translate(${x - it.w/2}px, ${y - it.h/2}px) rotate(${it.body.angle}rad)`;
+      it.el.style.transform = `translate(${x - it.w/2}px, ${y - it.h/2}px) rotate(${it.body.angle}rad) scale(${it.scale})`;
       if(it.falling && !it.landed && it.body.speed < 0.15){ it.landed = true; it.el.classList.add('landed'); }
     }
   });
@@ -1018,16 +1024,17 @@ const Phys = (()=>{
       restitution:0.25, friction:0.7, frictionStatic:0.9, density:0.002 });
     if(!crowded) Body.setStatic(body, true);   // 先固定在空中（之後 setStatic(false) 才能正確恢復質量）
     Composite.add(engine.world, body);
-    const it = { body, el, w, h, falling:false, landed:false };
+    const it = { body, el, w, h, falling:false, landed:false, scale:1, dropAt:0 };
     items.push(it);
     el.style.transform = `translate(${x - w/2}px, ${y - h/2}px)`;
-    if(crowded){ it.falling = true; el.classList.remove('new'); checkFull(); return; }
+    if(crowded){ it.falling = true; it.dropAt = performance.now(); el.classList.remove('new'); checkFull(); return; }
     setTimeout(()=>{
       if(!items.includes(it)) return;
       Body.setStatic(it.body, false);
       Body.setAngularVelocity(it.body, (Math.random()-.5)*0.08);
       Body.setVelocity(it.body, { x:(Math.random()-.5)*1.5, y:0 });
       it.falling = true;
+      it.dropAt = performance.now();
       el.classList.remove('new');
       checkFull();
     }, DREAM_SHOW);
