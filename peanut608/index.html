@@ -606,6 +606,7 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
 <aside class="panel" id="panel">
   <button class="icon-btn close-x" onclick="openPanel(false)">✕</button>
   <h2>⚙️ 花生設定</h2>
+  <p class="hint" id="lockTimer" style="opacity:1;color:#ffd23f;font-weight:800"></p>
   <p class="hint">數字是畫面下方的音量（0–100）。音量超過門檻約半秒，花生就會升級；安靜下來幾秒後，會一級一級慢慢平靜回去。</p>
 
   <button class="pbtn" id="calBtn" onclick="calibrate()">🤫 安靜校正（請全班安靜 3 秒）</button>
@@ -848,15 +849,28 @@ function syncPanel(){
 function save(){ lsSet('peanut608', cfg); }
 function openPanel(on){ $('panel').classList.toggle('open', on); }
 
-/* ===== 設定要老師密碼（只存雜湊值，不存密碼本身）；解鎖後這次開啟期間都不用再輸入 ===== */
+/* ===== 設定要老師密碼（只存雜湊值，不存密碼本身）；解鎖 3 分鐘後自動上鎖，要重新輸入 ===== */
 const TEACHER_HASH = '012e6c588b086f768ee49098519bdfdbfb4454a23317518964e1982f6fcbc302';
-let teacherOK = false, lockFails = 0, lockUntil = 0;
+const UNLOCK_MS = 3 * 60 * 1000;          // 輸入老師密碼後 3 分鐘內有效，之後要重新輸入
+let unlockUntil = 0, lockFails = 0, lockUntil = 0, unlockTimer = null;
+function teacherOK(){ return Date.now() < unlockUntil; }
+function tickUnlock(){
+  const left = unlockUntil - Date.now();
+  if(left <= 0){
+    clearInterval(unlockTimer); unlockTimer = null; unlockUntil = 0;
+    $('lockTimer').textContent = '';
+    if($('panel').classList.contains('open')){ openPanel(false); }   // 時間到自動關閉設定
+    return;
+  }
+  const sec = Math.ceil(left / 1000);
+  $('lockTimer').textContent = `🔓 已解鎖，${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')} 後自動上鎖`;
+}
 async function sha256(t){
   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 function askTeacher(){
-  if(teacherOK){ openPanel(true); return; }
+  if(teacherOK()){ openPanel(true); return; }
   $('tpwIn').value=''; $('tpwErr').textContent='';
   $('lockbox').classList.add('show'); setTimeout(()=>$('tpwIn').focus(), 50);
 }
@@ -867,7 +881,11 @@ async function checkTeacher(){
   const v = $('tpwIn').value.trim(); if(!v) return;
   let ok = false;
   try{ ok = (await sha256('608-peanut:' + v)) === TEACHER_HASH; }catch(e){ ok = false; }
-  if(ok){ teacherOK = true; lockFails = 0; closeLock(); openPanel(true); return; }
+  if(ok){
+    unlockUntil = Date.now() + UNLOCK_MS; lockFails = 0;
+    clearInterval(unlockTimer); unlockTimer = setInterval(tickUnlock, 1000); tickUnlock();
+    closeLock(); openPanel(true); return;
+  }
   lockFails++; $('tpwIn').value='';
   const c = $('lockcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
   if(lockFails >= 5){ lockUntil = Date.now() + 60000; lockFails = 0; $('tpwErr').textContent = '錯太多次了，請 1 分鐘後再試'; }
