@@ -968,7 +968,7 @@ const Phys = (()=>{
   let walls = [];
   const items = [];                    // {body, el, falling}
   const SHRINK_TO = 0.5, SHRINK_MS = 1600;   // 掉落時縮到一半，約 1.6 秒縮完
-  const MAX_DREAMS = 20;               // 累計 20 句後，慢慢全部消失再重來
+  const MAX_DREAMS = 50;               // 累計 50 句後，慢慢全部消失再重來
   let fadeTimer = null;
   function checkFull(){
     if(items.length < MAX_DREAMS || fadeTimer) return;
