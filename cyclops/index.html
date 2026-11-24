@@ -782,8 +782,8 @@ function readLevel(){
 
 /* ===================== 狀態機 ===================== */
 let state=0, upSince=null, downSince=null, lastTick=0;
-/* 夢話時間：睡著 10 秒後第一句；每句顯示 4 秒；說完停 20–30 秒再說下一句 */
-const DREAM_FIRST = 10000, DREAM_SHOW = 4000, DREAM_GAP_MIN = 20000, DREAM_GAP_MAX = 30000;
+/* 夢話時間：睡著 10 秒後第一句；每句顯示 6 秒；說完停 15–25 秒再說下一句 */
+const DREAM_FIRST = 10000, DREAM_SHOW = 6000, DREAM_GAP_MIN = 15000, DREAM_GAP_MAX = 25000;
 let quietMs=0, bestMs=0, quietSince=0, wakeCount=0, rageCount=0, muteUntil=0, nextDreamAt=0;
 
 function targetFor(level){
