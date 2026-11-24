@@ -109,6 +109,7 @@ body.s4 .badge{background:#ff2a1f;border-color:#fff;animation:pulse .5s ease-in-
 .dropb.c-blue{background:rgba(205,234,255,.9);}
 .dropb.c-pink{background:rgba(255,218,234,.9);}
 @keyframes dreamIn{from{opacity:0;scale:.4}}
+.dropb.fade{transition:opacity 2.5s ease;opacity:0;}
 .dropb.pop{transition:opacity .45s, scale .45s;opacity:0;scale:1.4;}
 body.s3 .bubble{background:#fff2d6;color:#8a1c1c;}
 body.s3 .bubble::after{border-right-color:#fff2d6;}
@@ -889,11 +890,26 @@ let bubbleTimer = null;
 const Phys = (()=>{
   if(typeof Matter === 'undefined') return null;
   const {Engine, Runner, Bodies, Body, Composite, Events, Query} = Matter;
-  const engine = Engine.create({ gravity:{ x:0, y:1.1 } });
+  const engine = Engine.create({ gravity:{ x:0, y:0.55 } });   // 二分之一引力，掉得比較慢
   const runner = Runner.create();
   Runner.run(runner, engine);
   let walls = [];
   const items = [];                    // {body, el, falling}
+  const MAX_DREAMS = 20;               // 累計 20 句後，慢慢全部消失再重來
+  let fadeTimer = null;
+  function checkFull(){
+    if(items.length < MAX_DREAMS || fadeTimer) return;
+    fadeTimer = setTimeout(fadeAll, 6000);          // 等最後一句掉到地上再開始淡出
+  }
+  function fadeAll(){
+    fadeTimer = null;
+    const old = items.splice(0);
+    old.forEach(it=>it.el.classList.add('fade'));
+    setTimeout(()=>{ old.forEach(it=>{ Composite.remove(engine.world, it.body); it.el.remove(); }); }, 2600);
+    fading.push(...old);
+    setTimeout(()=>{ for(const it of old){ const k=fading.indexOf(it); if(k>=0) fading.splice(k,1); } }, 2700);
+  }
+  const fading = [];
   function bounds(){
     const vw = innerWidth, vh = innerHeight;
     const bottom = document.querySelector('.meter-row') && document.querySelector('.meter-row').parentElement;
@@ -917,7 +933,7 @@ const Phys = (()=>{
   let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(buildWalls, 200); });
 
   Events.on(engine, 'afterUpdate', ()=>{
-    for(const it of items){
+    for(const it of items.concat(fading)){
       const {x, y} = it.body.position;
       it.el.style.transform = `translate(${x - it.w/2}px, ${y - it.h/2}px) rotate(${it.body.angle}rad)`;
       if(it.falling && !it.landed && it.body.speed < 0.15){ it.landed = true; it.el.classList.add('landed'); }
@@ -951,7 +967,7 @@ const Phys = (()=>{
     const it = { body, el, w, h, falling:false, landed:false };
     items.push(it);
     el.style.transform = `translate(${x - w/2}px, ${y - h/2}px)`;
-    if(crowded){ it.falling = true; el.classList.remove('new'); return; }
+    if(crowded){ it.falling = true; el.classList.remove('new'); checkFull(); return; }
     setTimeout(()=>{
       if(!items.includes(it)) return;
       Body.setStatic(it.body, false);
@@ -959,10 +975,12 @@ const Phys = (()=>{
       Body.setVelocity(it.body, { x:(Math.random()-.5)*1.5, y:0 });
       it.falling = true;
       el.classList.remove('new');
+      checkFull();
     }, DREAM_SHOW);
   }
   function clear(){
-    for(const it of items.splice(0)){
+    clearTimeout(fadeTimer); fadeTimer = null;
+    for(const it of items.splice(0).concat(fading.splice(0))){
       Composite.remove(engine.world, it.body);
       it.el.classList.add('pop');
       setTimeout(()=>it.el.remove(), 480);
