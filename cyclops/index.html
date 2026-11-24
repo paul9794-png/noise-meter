@@ -765,7 +765,7 @@ function begin(){
   running = true;
   lastTick = performance.now();
   quietSince = performance.now();
-  nextDreamAt = performance.now() + 30000;
+  nextDreamAt = performance.now() + DREAM_FIRST;
   keepAwake();
   requestAnimationFrame(loop);
 }
@@ -782,6 +782,8 @@ function readLevel(){
 
 /* ===================== 狀態機 ===================== */
 let state=0, upSince=null, downSince=null, lastTick=0;
+/* 夢話時間：睡著 10 秒後第一句；每句顯示 4 秒；說完停 20–30 秒再說下一句 */
+const DREAM_FIRST = 10000, DREAM_SHOW = 4000, DREAM_GAP_MIN = 20000, DREAM_GAP_MAX = 30000;
 let quietMs=0, bestMs=0, quietSince=0, wakeCount=0, rageCount=0, muteUntil=0, nextDreamAt=0;
 
 function targetFor(level){
@@ -825,8 +827,8 @@ function loop(now){
     if(streak > bestMs){ bestMs = streak; $('bestTime').textContent = fmt(bestMs); }
     $('quietTime').textContent = fmt(quietMs);
     if(cfg.dream !== false && now >= nextDreamAt){
-      showBubble(nextDream(), true, 6000);
-      nextDreamAt = now + 40000 + Math.random()*30000;
+      showBubble(nextDream(), true, DREAM_SHOW);
+      nextDreamAt = now + DREAM_SHOW + DREAM_GAP_MIN + Math.random()*(DREAM_GAP_MAX - DREAM_GAP_MIN);
     }
   }
   requestAnimationFrame(loop);
@@ -853,7 +855,7 @@ function setState(n, now){
   const rising = n > state;
   if(state === 0 && n >= 1){ wakeCount++; $('wakeCount').textContent = wakeCount; }
   if(n === 4){ rageCount++; $('rageCount').textContent = rageCount; }
-  if(n === 0){ quietSince = now || performance.now(); nextDreamAt = quietSince + 30000; }
+  if(n === 0){ quietSince = now || performance.now(); nextDreamAt = quietSince + DREAM_FIRST; }
   state = n;
   document.body.className = document.body.className.replace(/\bs\d\b/g,'').trim() + ' s'+n;
   bgs.forEach((b,i)=>b.classList.toggle('on', i===n));
