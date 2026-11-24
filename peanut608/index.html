@@ -849,9 +849,10 @@ function syncPanel(){
 function save(){ lsSet('peanut608', cfg); }
 function openPanel(on){ $('panel').classList.toggle('open', on); }
 
-/* ===== 設定要老師密碼（只存雜湊值，不存密碼本身）；解鎖 3 分鐘後自動上鎖，要重新輸入 ===== */
+/* ===== 設定要老師密碼（只存雜湊值，不存密碼本身）；解鎖 50 秒後自動上鎖，要重新輸入 ===== */
 const TEACHER_HASH = '012e6c588b086f768ee49098519bdfdbfb4454a23317518964e1982f6fcbc302';
-const UNLOCK_MS = 3 * 60 * 1000;          // 輸入老師密碼後 3 分鐘內有效，之後要重新輸入
+const UNLOCK_MS = 50 * 1000;              // 輸入老師密碼後 50 秒內有效，之後要重新輸入
+const MAX_FAILS = 3;                      // 連錯 3 次鎖 1 分鐘
 let unlockUntil = 0, lockFails = 0, lockUntil = 0, unlockTimer = null;
 function teacherOK(){ return Date.now() < unlockUntil; }
 function tickUnlock(){
@@ -888,7 +889,7 @@ async function checkTeacher(){
   }
   lockFails++; $('tpwIn').value='';
   const c = $('lockcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
-  if(lockFails >= 5){ lockUntil = Date.now() + 60000; lockFails = 0; $('tpwErr').textContent = '錯太多次了，請 1 分鐘後再試'; }
+  if(lockFails >= MAX_FAILS){ lockUntil = Date.now() + 60000; lockFails = 0; $('tpwErr').textContent = '錯太多次了，請 1 分鐘後再試'; }
   else $('tpwErr').textContent = '密碼不對喔！';
 }
 $('tpwIn').addEventListener('keydown', e=>{ if(e.key==='Enter') checkTeacher(); });
