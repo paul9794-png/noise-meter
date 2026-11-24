@@ -103,7 +103,11 @@ body.s4 .badge{background:#ff2a1f;border-color:#fff;animation:pulse .5s ease-in-
   padding:7px 13px;font-size:clamp(.8rem,1.35vw,1rem);font-weight:800;line-height:1.4;letter-spacing:.5px;
   box-shadow:0 10px 22px -12px rgba(0,0,0,.8);backdrop-filter:blur(4px);}
 .dropb.new{animation:dreamIn .45s cubic-bezier(.175,.885,.32,1.4);}
-.dropb.landed{background:rgba(30,40,92,.92);}
+.dropb{color:#2a2440;border-color:rgba(60,60,110,.35);}
+.dropb.c-yellow{background:rgba(255,246,190,.9);}
+.dropb.c-white{background:rgba(255,255,255,.9);}
+.dropb.c-blue{background:rgba(205,234,255,.9);}
+.dropb.c-pink{background:rgba(255,218,234,.9);}
 @keyframes dreamIn{from{opacity:0;scale:.4}}
 .dropb.pop{transition:opacity .45s, scale .45s;opacity:0;scale:1.4;}
 body.s3 .bubble{background:#fff2d6;color:#8a1c1c;}
@@ -617,7 +621,34 @@ const DREAM_ALL = [
   '我夢到……{n}幫同學把掉在地上的鉛筆撿起來……',
   '我夢到……{n}看到有人需要幫忙，第一個舉手……',
   '我夢到……{n}把教室的燈和電扇隨手關掉，好環保……',
-  '我夢到……{n}說到做到，答應的事都有完成……'
+  '我夢到……{n}說到做到，答應的事都有完成……',
+  '我夢到……{n}主動幫忙把大家的椅子靠好……',
+  '我夢到……{n}看到新同學一個人，就邀他一起玩……',
+  '我夢到……{n}把撿到的錢包交給老師，好誠實……',
+  '我夢到……{n}吵架後第一個說「對不起」，好勇敢……',
+  '我夢到……{n}跟同學說「你好棒」，大家都笑了……',
+  '我夢到……{n}輕輕關門，沒有吵到隔壁班……',
+  '我夢到……{n}幫忙澆花，植物都長得好高……',
+  '我夢到……{n}把自己的點心分給忘記帶的同學……',
+  '我夢到……{n}讓座給需要的人，好貼心……',
+  '我夢到……{n}耐心等別人把話說完才發言……',
+  '我夢到……{n}把垃圾分類分得好仔細……',
+  '我夢到……{n}幫同學撐傘走到校門口……',
+  '我夢到……{n}看到有人被笑，站出來說「不可以這樣」……',
+  '我夢到……{n}輸了比賽還是笑著跟對手握手……',
+  '我夢到……{n}主動整理亂掉的書櫃……',
+  '我夢到……{n}跟警衛伯伯說早安，伯伯好開心……',
+  '我夢到……{n}幫生病請假的同學抄聯絡簿……',
+  '我夢到……{n}上課專心聽講，眼睛亮晶晶……',
+  '我夢到……{n}犯錯了也勇敢承認，沒有找藉口……',
+  '我夢到……{n}稱讚別人的優點，大家感情更好了……',
+  '我夢到……{n}自動自發寫完作業才去玩……',
+  '我夢到……{n}幫忙把走廊上的水擦乾，怕大家滑倒……',
+  '我夢到……{n}對小一的學弟妹好溫柔……',
+  '我夢到……{n}把好書推薦給同學一起看……',
+  '我夢到……{n}遇到困難也不放棄，一直努力……',
+  '我夢到……{n}回家主動幫忙做家事，家人好開心……',
+  '我夢到……{n}安靜排隊裝水，一點都不推擠……'
 ];
 const DREAM_B = [
   '我夢到……{n}好帥喔……帥到我的眼睛閃閃發光……',
@@ -898,7 +929,7 @@ const Phys = (()=>{
     const b = bounds();
     const layer = document.getElementById('dreamLayer');
     const el = document.createElement('div');
-    el.className = 'dropb new';
+    el.className = 'dropb new ' + ['c-yellow','c-white','c-blue','c-pink'][Math.floor(Math.random()*4)];
     el.textContent = text;
     const leftW = b.gl, rightW = b.vw - b.gr;
     const useLeft = (side++ % 2 === 0);
