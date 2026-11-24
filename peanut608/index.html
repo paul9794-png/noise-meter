@@ -185,11 +185,13 @@ body.demo .demo-bar{display:flex;}
 .demo-bar input{flex:1;accent-color:#ffd23f;}
 
 /* ============ 好事花生：各部位 ============ */
-:root{--skin:#efcb8e;--skin-dark:#cf9f5e;}
+:root{--skin:#e9b468;--skin-dark:#b97a35;--limb:#6e4220;}
+#peanut .limb{stroke:var(--limb);stroke-width:11;stroke-linecap:round;stroke-linejoin:round;fill:none;}
+#peanut .limbf{fill:var(--limb);stroke:#3b2614;stroke-width:4;stroke-linejoin:round;}
 #peanut .skin{fill:var(--skin);transition:fill .8s;}
 #peanut .skin-dark{fill:var(--skin-dark);transition:fill .8s;}
 #peanut .line{stroke:#3b2614;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}
-#peanut .tex{stroke:var(--skin-dark);stroke-width:3;stroke-linecap:round;fill:none;opacity:.75;transition:stroke .8s;}
+#peanut .tex{stroke:var(--skin-dark);stroke-width:3.2;stroke-linecap:round;fill:none;opacity:.55;transition:stroke .8s;}
 .part{transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .35s;}
 .mouth{opacity:0;transition:opacity .25s;}
 body.s0 .m0, body.s1 .m1, body.s2 .m2, body.s3 .m3, body.s4 .m4{opacity:1;}
@@ -215,9 +217,9 @@ body.s1 #qmark{opacity:1;animation:qpop 1.6s ease-in-out infinite;}
 
 /* 眼皮 */
 .lid{transform:translateY(0);}
-body.s1 .lid{transform:translateY(-22px);}
-body.s2 .lid{transform:translateY(-30px);}
-body.s3 .lid,body.s4 .lid{transform:translateY(-62px);}
+body.s1 .lid{transform:translateY(-30px);}
+body.s2 .lid{transform:translateY(-42px);}
+body.s3 .lid,body.s4 .lid{transform:translateY(-80px);}
 .closedLash{opacity:0;}
 body.s0 .closedLash{opacity:1;}
 
@@ -237,7 +239,7 @@ body.s4 .veins{opacity:1;}
 
 /* 眉毛 */
 .brow{stroke:#3b2614;stroke-width:9;stroke-linecap:round;fill:none;transform-box:view-box;}
-#browL{transform-origin:162px 116px;} #browR{transform-origin:238px 116px;}
+#browL{transform-origin:166px 74px;} #browR{transform-origin:234px 74px;}
 body.s0 #browL{transform:translateY(6px) rotate(-6deg);}  body.s0 #browR{transform:translateY(6px) rotate(6deg);}
 body.s1 #browL{transform:translateY(-8px) rotate(-12deg);} body.s1 #browR{transform:translateY(-8px) rotate(12deg);}
 body.s2 #browL{transform:translateY(2px) rotate(14deg);}   body.s2 #browR{transform:translateY(2px) rotate(-14deg);}
@@ -293,7 +295,7 @@ body.s4 #whole{animation:rage .12s linear infinite;}
 #ground{transform-box:fill-box;transform-origin:50% 50%;}
 body.s3 #ground{animation:gpulse .5s ease-in-out infinite;}
 @keyframes gpulse{50%{transform:scaleX(.9);opacity:.7}}
-body.s3{--skin:#e4b070;--skin-dark:#b9813f;}
+body.s3{--skin:#df9f55;--skin-dark:#a8692a;}
 body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
 
 @media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;animation-iteration-count:1!important;}}
@@ -328,7 +330,7 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
     <div class="cy-wrap">
       <svg id="peanut" viewBox="0 0 400 440" aria-label="好事花生">
         <defs>
-          <path id="bodyShape" d="M200,40 C268,40 306,92 306,148 C306,192 284,214 274,232 C302,252 320,284 320,318 C320,380 266,414 200,414 C134,414 80,380 80,318 C80,284 98,252 126,232 C116,214 94,192 94,148 C94,92 132,40 200,40 Z"/>
+          <path id="bodyShape" d="M200,28 C262,28 296,70 296,124 C296,168 280,190 276,212 C273,232 300,262 300,306 C300,360 258,390 200,390 C142,390 100,360 100,306 C100,262 127,232 124,212 C120,190 104,168 104,124 C104,70 138,28 200,28 Z"/>
           <clipPath id="bodyClip"><use href="#bodyShape"/></clipPath>
           <radialGradient id="hl" cx="34%" cy="20%" r="65%">
             <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
@@ -344,7 +346,7 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
           </radialGradient>
         </defs>
 
-        <ellipse id="ground" cx="200" cy="424" rx="140" ry="16" fill="url(#groundG)"/>
+        <ellipse id="ground" cx="200" cy="428" rx="130" ry="14" fill="url(#groundG)"/>
 
         <g id="zzz">
           <text x="290" y="70" font-size="34">Z</text>
@@ -362,38 +364,52 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
             <circle cx="178" cy="22" r="8"/><circle cx="222" cy="22" r="8"/>
           </g>
 
-          <!-- 手 -->
+          <!-- 手：細細的咖啡色手臂＋手套 -->
           <g class="part arm" id="armL">
-            <path class="skin line" d="M100,262 C70,268 54,300 62,326 C68,346 92,344 98,326 C102,312 108,296 118,284 Z"/>
+            <path class="limb" d="M112,236 C90,240 72,256 62,280"/>
+            <path class="limbf" d="M48,276 C40,290 46,306 60,308 C74,310 82,298 78,284 L84,270 C86,264 78,262 76,268 L72,278 C70,270 62,266 56,270 Z"/>
           </g>
           <g class="part arm" id="armR">
-            <path class="skin line" d="M300,262 C330,268 346,300 338,326 C332,346 308,344 302,326 C298,312 292,296 282,284 Z"/>
+            <path class="limb" d="M288,236 C310,240 328,256 338,280"/>
+            <path class="limbf" d="M352,276 C360,290 354,306 340,308 C326,310 318,298 322,284 L316,270 C314,264 322,262 324,268 L328,278 C330,270 338,266 344,270 Z"/>
           </g>
-
-          <!-- 腳 -->
-          <ellipse class="skin-dark line" cx="160" cy="414" rx="34" ry="17"/>
-          <ellipse class="skin-dark line" cx="240" cy="414" rx="34" ry="17"/>
+          <!-- 腳＋大鞋子 -->
+          <path class="limb" d="M172,384 L168,410"/><path class="limb" d="M228,384 L232,410"/>
+          <path class="limbf" d="M126,420 C126,404 150,400 170,404 C182,406 186,416 182,424 C176,430 132,432 126,420 Z"/>
+          <path class="limbf" d="M274,420 C274,404 250,400 230,404 C218,406 214,416 218,424 C224,430 268,432 274,420 Z"/>
 
           <g class="breath">
             <!-- 花生殼 -->
             <use href="#bodyShape" class="skin line"/>
             <g clip-path="url(#bodyClip)">
               <g class="tex">
-                <path d="M120,90 C150,110 150,160 128,190"/><path d="M280,90 C250,110 250,160 272,190"/>
-                <path d="M110,290 C140,310 140,360 118,392"/><path d="M290,290 C260,310 260,360 282,392"/>
-                <path d="M150,60 C175,80 225,80 250,60"/><path d="M130,260 C170,280 230,280 270,260"/>
-                <path d="M120,380 C170,398 230,398 280,380"/>
-              </g>
-              <g fill="var(--skin-dark)" opacity=".55">
-                <circle cx="128" cy="130" r="3"/><circle cx="270" cy="118" r="3"/><circle cx="246" cy="76" r="2.5"/><circle cx="152" cy="80" r="2.5"/>
-                <circle cx="118" cy="320" r="3"/><circle cx="286" cy="330" r="3"/><circle cx="150" cy="370" r="2.5"/><circle cx="258" cy="372" r="2.5"/>
-                <circle cx="200" cy="300" r="3"/><circle cx="178" cy="345" r="2.5"/><circle cx="224" cy="345" r="2.5"/>
+                <path d="M80,52 Q200,58 320,52"/>
+                <path d="M80,78 Q200,84 320,78"/>
+                <path d="M80,104 Q200,110 320,104"/>
+                <path d="M80,130 Q200,136 320,130"/>
+                <path d="M80,156 Q200,162 320,156"/>
+                <path d="M80,182 Q200,188 320,182"/>
+                <path d="M80,208 Q200,214 320,208"/>
+                <path d="M80,234 Q200,240 320,234"/>
+                <path d="M80,260 Q200,266 320,260"/>
+                <path d="M80,286 Q200,292 320,286"/>
+                <path d="M80,312 Q200,318 320,312"/>
+                <path d="M80,338 Q200,344 320,338"/>
+                <path d="M80,364 Q200,370 320,364"/>
+                <path d="M80,390 Q200,396 320,390"/>
+                <path d="M118,20 Q108.16,210 118,400"/>
+                <path d="M144,20 Q137.28,210 144,400"/>
+                <path d="M170,20 Q166.4,210 170,400"/>
+                <path d="M196,20 Q195.52,210 196,400"/>
+                <path d="M222,20 Q224.64,210 222,400"/>
+                <path d="M248,20 Q253.76,210 248,400"/>
+                <path d="M274,20 Q282.88,210 274,400"/>
               </g>
               <use href="#bodyShape" fill="url(#shade)"/>
               <use href="#bodyShape" fill="url(#hl)"/>
             </g>
             <!-- 肚子上的小葉子＝好事發生 -->
-            <g transform="translate(200 322)">
+            <g transform="translate(200 300)">
               <path d="M0,0 C-14,-22 -34,-20 -36,-4 C-24,4 -10,6 0,0 Z" fill="#7cc576" stroke="#3b2614" stroke-width="3"/>
               <path d="M0,0 C14,-22 34,-20 36,-4 C24,4 10,6 0,0 Z" fill="#94d68b" stroke="#3b2614" stroke-width="3"/>
               <path d="M0,0 L0,16" stroke="#3b2614" stroke-width="3" stroke-linecap="round"/>
@@ -401,8 +417,8 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
 
             <!-- 腮紅 -->
             <g id="blush" fill="#ff8fa3" opacity=".6">
-              <ellipse cx="124" cy="186" rx="20" ry="11"/><ellipse cx="276" cy="186" rx="20" ry="11"/>
-              <g fill="#fff" opacity=".7"><circle cx="116" cy="182" r="2.5"/><circle cx="284" cy="182" r="2.5"/></g>
+              <ellipse cx="134" cy="168" rx="18" ry="10"/><ellipse cx="266" cy="168" rx="18" ry="10"/>
+              <g fill="#fff" opacity=".7"><circle cx="127" cy="164" r="2.5"/><circle cx="273" cy="164" r="2.5"/></g>
             </g>
             <g id="anger" stroke="#d1101a" stroke-width="7" stroke-linecap="round" fill="none">
               <path d="M292,84 q10,4 12,14"/><path d="M324,84 q-10,4 -12,14"/>
@@ -413,73 +429,73 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
 
             <!-- 眼睛 -->
             <g>
-              <clipPath id="clipL"><circle cx="162" cy="150" r="25"/></clipPath>
+              <clipPath id="clipL"><ellipse cx="168" cy="118" rx="22" ry="31"/></clipPath>
               <g clip-path="url(#clipL)">
-                <circle cx="162" cy="150" r="25" fill="url(#scleraG)"/>
+                <ellipse cx="168" cy="118" rx="22" ry="31" fill="url(#scleraG)"/>
                 <g class="veins" stroke="#e23b3b" stroke-width="2" fill="none" stroke-linecap="round">
-                  <path d="M139,146 q7,3 11,-1"/><path d="M185,146 q-7,3 -11,-1"/><path d="M141,160 q7,-2 10,3"/><path d="M183,160 q-7,-2 -10,3"/>
+                  <path d="M148,112 q7,3 10,-1"/><path d="M188,112 q-7,3 -10,-1"/><path d="M149,130 q7,-2 9,3"/><path d="M187,130 q-7,-2 -9,3"/>
                 </g>
                 <g class="iris">
-                  <circle class="irisFill" cx="162" cy="152" r="14"/>
-                  <circle cx="167" cy="146" r="5.5" fill="#fff"/>
-                  <circle cx="157" cy="158" r="2.4" fill="#fff" opacity=".85"/>
+                  <ellipse class="irisFill" cx="171" cy="124" rx="11" ry="15"/>
+                  <circle cx="175" cy="117" r="5" fill="#fff"/>
+                  <circle cx="167" cy="131" r="2.2" fill="#fff" opacity=".85"/>
                 </g>
                 <g class="lid part">
-                  <rect class="skin" x="132" y="122" width="60" height="54"/>
-                  <path class="line" fill="none" stroke-width="4" d="M136,175 Q162,180 188,175"/>
+                  <rect class="skin" x="140" y="84" width="56" height="68"/>
+                  <path class="line" fill="none" stroke-width="4" d="M144,151 Q168,156 192,151"/>
                 </g>
               </g>
-              <circle cx="162" cy="150" r="25" fill="none" class="line" stroke-width="4"/>
+              <ellipse cx="168" cy="118" rx="22" ry="31" fill="none" class="line" stroke-width="4.5"/>
               <g class="closedLash line" fill="none" stroke-width="4.5">
-                <path d="M142,152 Q162,168 182,152"/>
-                <path d="M152,160 l-4,8 M172,160 l4,8"/>
+                <path d="M150,122 Q168,138 186,122"/>
+                <path d="M159,130 l-4,8 M177,130 l4,8"/>
               </g>
             </g>
             <g>
-              <clipPath id="clipR"><circle cx="238" cy="150" r="25"/></clipPath>
+              <clipPath id="clipR"><ellipse cx="232" cy="118" rx="22" ry="31"/></clipPath>
               <g clip-path="url(#clipR)">
-                <circle cx="238" cy="150" r="25" fill="url(#scleraG)"/>
+                <ellipse cx="232" cy="118" rx="22" ry="31" fill="url(#scleraG)"/>
                 <g class="veins" stroke="#e23b3b" stroke-width="2" fill="none" stroke-linecap="round">
-                  <path d="M215,146 q7,3 11,-1"/><path d="M261,146 q-7,3 -11,-1"/><path d="M217,160 q7,-2 10,3"/><path d="M259,160 q-7,-2 -10,3"/>
+                  <path d="M212,112 q7,3 10,-1"/><path d="M252,112 q-7,3 -10,-1"/><path d="M213,130 q7,-2 9,3"/><path d="M251,130 q-7,-2 -9,3"/>
                 </g>
                 <g class="iris">
-                  <circle class="irisFill" cx="238" cy="152" r="14"/>
-                  <circle cx="243" cy="146" r="5.5" fill="#fff"/>
-                  <circle cx="233" cy="158" r="2.4" fill="#fff" opacity=".85"/>
+                  <ellipse class="irisFill" cx="235" cy="124" rx="11" ry="15"/>
+                  <circle cx="239" cy="117" r="5" fill="#fff"/>
+                  <circle cx="231" cy="131" r="2.2" fill="#fff" opacity=".85"/>
                 </g>
                 <g class="lid part">
-                  <rect class="skin" x="208" y="122" width="60" height="54"/>
-                  <path class="line" fill="none" stroke-width="4" d="M212,175 Q238,180 264,175"/>
+                  <rect class="skin" x="204" y="84" width="56" height="68"/>
+                  <path class="line" fill="none" stroke-width="4" d="M208,151 Q232,156 256,151"/>
                 </g>
               </g>
-              <circle cx="238" cy="150" r="25" fill="none" class="line" stroke-width="4"/>
+              <ellipse cx="232" cy="118" rx="22" ry="31" fill="none" class="line" stroke-width="4.5"/>
               <g class="closedLash line" fill="none" stroke-width="4.5">
-                <path d="M218,152 Q238,168 258,152"/>
-                <path d="M228,160 l-4,8 M248,160 l4,8"/>
+                <path d="M214,122 Q232,138 250,122"/>
+                <path d="M223,130 l-4,8 M241,130 l4,8"/>
               </g>
             </g>
             <!-- 眉毛 -->
-            <path id="browL" class="brow part" d="M140,116 L184,116"/>
-            <path id="browR" class="brow part" d="M216,116 L260,116"/>
+            <path id="browL" class="brow part" d="M148,74 L186,74"/>
+            <path id="browR" class="brow part" d="M214,74 L252,74"/>
 
             <!-- 嘴巴：五種 -->
-            <g class="mouth m0">
+            <g class="mouth m0" transform="translate(0 -16)">
               <path class="line" fill="none" stroke-width="4" d="M184,198 Q192,208 200,198 Q208,208 216,198"/>
               <circle id="snot" cx="226" cy="186" r="15" fill="#d7f0ff" stroke="#8fc3e8" stroke-width="2.5"/>
             </g>
-            <g class="mouth m1">
+            <g class="mouth m1" transform="translate(0 -14)">
               <ellipse cx="200" cy="206" rx="13" ry="12" fill="#5a1828" class="line" stroke-width="4"/>
               <ellipse cx="200" cy="212" rx="8" ry="4" fill="#ff7a8a"/>
             </g>
-            <g class="mouth m2">
+            <g class="mouth m2" transform="translate(0 -14)">
               <path class="line" fill="none" stroke-width="5" d="M180,214 Q200,196 220,214"/>
             </g>
-            <g class="mouth m3">
+            <g class="mouth m3" transform="translate(0 -16)">
               <path class="line" fill="#5a1020" stroke-width="4" d="M174,196 Q200,190 226,196 Q222,232 200,234 Q178,232 174,196 Z"/>
               <path fill="#fff" d="M180,197 Q200,192 220,197 L219,204 Q200,200 181,204 Z"/>
               <ellipse cx="200" cy="225" rx="12" ry="5" fill="#ff6b7d"/>
             </g>
-            <g class="mouth m4">
+            <g class="mouth m4" transform="translate(0 -16)">
               <path class="line" fill="#30050b" stroke-width="4" d="M164,194 Q200,186 236,194 Q232,248 200,250 Q168,248 164,194 Z"/>
               <path fill="#fff" class="line" stroke-width="2.5" d="M173,196 L180,214 L187,194 Z M213,194 L220,214 L227,196 Z"/>
               <path fill="#fff" class="line" stroke-width="2.5" d="M182,246 L188,232 L194,248 Z M206,248 L212,232 L218,246 Z"/>
@@ -487,7 +503,7 @@ body.s4{--skin:#e8634c;--skin-dark:#b0352a;}
             </g>
 
             <!-- 睡帽 -->
-            <g id="cap">
+            <g id="cap" transform="translate(0 -26)">
               <path class="line" fill="#6c8cf0" d="M120,92 C140,52 220,36 268,62 C290,42 316,28 342,38 C330,52 318,72 300,90 C252,66 170,68 120,92 Z"/>
               <path class="line" fill="#fff" stroke-width="4" d="M114,96 C164,68 246,64 304,92 L298,106 C246,82 166,84 120,110 Z"/>
               <circle class="line" cx="346" cy="40" r="14" fill="#fff" stroke-width="4"/>
