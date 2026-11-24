@@ -152,6 +152,22 @@ body.s4 .bubble::after{border-right-color:#ff4a3d;}
   font-family:inherit;color:#1d2340;background:linear-gradient(135deg,#ffe27a,#ffb02e);margin-top:6px;}
 .pbtn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);}
 .close-x{position:absolute;top:14px;right:14px;}
+/* 老師密碼鎖 */
+.lockbox{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(8,10,28,.66);backdrop-filter:blur(5px);padding:20px;}
+.lockbox.show{display:flex;}
+.lockcard{background:#fff;color:#1d2340;border-radius:22px;padding:24px 26px;width:100%;max-width:340px;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);animation:popIn .35s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}}
+.lockcard h3{margin:0 0 6px;font-size:1.2rem;letter-spacing:2px;}
+.lockcard p{margin:4px 0 12px;color:#5a6286;font-size:.86rem;}
+.lockcard input{width:100%;padding:12px;border-radius:12px;border:2px solid #dde2f2;font-size:1.1rem;text-align:center;font-family:inherit;letter-spacing:3px;}
+.lockcard input:focus{outline:none;border-color:#4f8cff;}
+.lockcard .lerr{color:#c0392b;font-weight:800;font-size:.85rem;min-height:1.3em;margin-top:6px;}
+.lockcard .lrow{display:flex;gap:10px;margin-top:8px;}
+.lockcard .lrow button{flex:1;border:0;cursor:pointer;border-radius:12px;padding:11px;font-family:inherit;font-weight:900;font-size:.95rem;}
+.lockcard .lgo{background:linear-gradient(135deg,#4f8cff,#2a5bd7);color:#fff;}
+.lockcard .lno{background:#eef1f8;color:#3a4266;}
+.lockcard.shake{animation:lshake .35s;}
+@keyframes lshake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
 hr{border:0;border-top:1px dashed rgba(255,255,255,.2);margin:18px 0;}
 
 /* ---------- 開始畫面 ---------- */
@@ -304,7 +320,7 @@ body.s4{--skin:#e8584e;--skin-dark:#b0302b;}
       <div class="stat"><b id="wakeCount">0</b><span>被吵醒</span></div>
       <div class="stat"><b id="rageCount">0</b><span>狂怒次數</span></div>
       <button class="icon-btn" onclick="toggleFull()" title="全螢幕">⛶</button>
-      <button class="icon-btn" onclick="openPanel(true)" title="設定">⚙️</button>
+      <button class="icon-btn" onclick="askTeacher()" title="設定（老師專用）">⚙️</button>
     </div>
   </div>
 
@@ -500,6 +516,17 @@ body.s4{--skin:#e8584e;--skin-dark:#b0302b;}
         <div id="ticks"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- 老師密碼 -->
+<div class="lockbox" id="lockbox">
+  <div class="lockcard" id="lockcard">
+    <h3>🔒 老師專用</h3>
+    <p>請輸入老師密碼，才能打開設定。</p>
+    <input type="password" id="tpwIn" inputmode="numeric" autocomplete="off" placeholder="老師密碼">
+    <div class="lerr" id="tpwErr"></div>
+    <div class="lrow"><button class="lno" onclick="closeLock()">取消</button><button class="lgo" onclick="checkTeacher()">確定</button></div>
   </div>
 </div>
 
@@ -749,6 +776,33 @@ function syncPanel(){
 }
 function save(){ lsSet('cyclops607', cfg); }
 function openPanel(on){ $('panel').classList.toggle('open', on); }
+
+/* ===== 設定要老師密碼（只存雜湊值，不存密碼本身）；解鎖後這次開啟期間都不用再輸入 ===== */
+const TEACHER_HASH = '012e6c588b086f768ee49098519bdfdbfb4454a23317518964e1982f6fcbc302';
+let teacherOK = false, lockFails = 0, lockUntil = 0;
+async function sha256(t){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function askTeacher(){
+  if(teacherOK){ openPanel(true); return; }
+  $('tpwIn').value=''; $('tpwErr').textContent='';
+  $('lockbox').classList.add('show'); setTimeout(()=>$('tpwIn').focus(), 50);
+}
+function closeLock(){ $('lockbox').classList.remove('show'); }
+async function checkTeacher(){
+  const now = Date.now();
+  if(now < lockUntil){ $('tpwErr').textContent = `錯太多次了，請 ${Math.ceil((lockUntil-now)/1000)} 秒後再試`; return; }
+  const v = $('tpwIn').value.trim(); if(!v) return;
+  let ok = false;
+  try{ ok = (await sha256('607-cyclops:' + v)) === TEACHER_HASH; }catch(e){ ok = false; }
+  if(ok){ teacherOK = true; lockFails = 0; closeLock(); openPanel(true); return; }
+  lockFails++; $('tpwIn').value='';
+  const c = $('lockcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+  if(lockFails >= 5){ lockUntil = Date.now() + 60000; lockFails = 0; $('tpwErr').textContent = '錯太多次了，請 1 分鐘後再試'; }
+  else $('tpwErr').textContent = '密碼不對喔！';
+}
+$('tpwIn').addEventListener('keydown', e=>{ if(e.key==='Enter') checkTeacher(); });
 function resetDefaults(){ cfg = Object.assign({}, DEFAULTS, {t:DEFAULTS.t.slice(), speak:cfg.speak, dream:cfg.dream}); bindPanel(); save(); }
 
 /* ===================== 嵌入偵測（協作平台） ===================== */
@@ -1094,7 +1148,7 @@ async function keepAwake(){
   try{ if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); }catch(e){}
 }
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && running) keepAwake(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') openPanel(false); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ openPanel(false); closeLock(); } });
 
 bindPanel();
 </script>
