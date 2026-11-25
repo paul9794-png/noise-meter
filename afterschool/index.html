@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>課後班學生・別吵醒獨眼巨人</title>
+<style>
+:root{
+  --skin:#7cc6a0; --skin-dark:#4f9a78; --iris:#3b7dd8; --ink:#1d2340;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;height:100%;}
+body{
+  font-family:'PingFang TC','Microsoft JhengHei','Noto Sans TC',sans-serif;
+  color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none;
+}
+
+/* ---------- 背景：五種氣氛層，淡入淡出 ---------- */
+.bg{position:fixed;inset:0;opacity:0;transition:opacity 1.2s ease;z-index:-3;}
+.bg.on{opacity:1;}
+.b0{background:radial-gradient(900px 600px at 80% 10%,#2b3f7a 0%,rgba(43,63,122,0) 60%),radial-gradient(700px 500px at 10% 100%,#1f3a6a 0%,rgba(31,58,106,0) 60%),linear-gradient(180deg,#070c24 0%,#131c45 60%,#1d2656 100%);}
+.b1{background:radial-gradient(900px 600px at 50% 0%,#8a6bd0 0%,rgba(138,107,208,0) 60%),linear-gradient(180deg,#26205a 0%,#54438c 70%,#866aa8 100%);}
+.b2{background:radial-gradient(900px 600px at 50% 0%,#ffb36b 0%,rgba(255,179,107,0) 60%),linear-gradient(180deg,#5d3672 0%,#b85f78 60%,#ef9668 100%);}
+.b3{background:radial-gradient(900px 600px at 50% 10%,#ff8a4c 0%,rgba(255,138,76,0) 60%),linear-gradient(180deg,#701b28 0%,#bd3c2d 60%,#ec7838 100%);}
+.b4{background:radial-gradient(1000px 700px at 50% 45%,#ff3b2f 0%,rgba(255,59,47,0) 65%),linear-gradient(180deg,#2e0306 0%,#850c11 60%,#c4161c 100%);animation:alarm 1s ease-in-out infinite;}
+@keyframes alarm{50%{filter:brightness(1.35) saturate(1.2);}}
+
+/* 地平線山丘 */
+.hills{position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(120% 100% at 20% 100%,rgba(0,0,0,.35) 0 45%,transparent 46%),
+    radial-gradient(120% 110% at 85% 100%,rgba(0,0,0,.28) 0 48%,transparent 49%);
+  transition:opacity 1s;}
+
+.stars{position:fixed;inset:0;z-index:-1;pointer-events:none;transition:opacity 1.2s;}
+.stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:.8;animation:twinkle 3s ease-in-out infinite;}
+@keyframes twinkle{50%{opacity:.15;transform:scale(.6);}}
+.shooting{position:fixed;top:12%;left:-10%;width:120px;height:2px;z-index:-1;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:2px;transform:rotate(18deg);}
+body.s0 .shooting{animation:shoot 9s linear infinite 3s;}
+@keyframes shoot{0%{opacity:0;transform:translate(0,0) rotate(18deg)}2%{opacity:1}9%{opacity:0;transform:translate(60vw,20vh) rotate(18deg)}100%{opacity:0}}
+.moon{position:fixed;top:7%;right:9%;width:96px;height:96px;border-radius:50%;z-index:-1;
+  box-shadow:-20px 10px 0 0 #ffe9a8, -20px 10px 40px 4px rgba(255,233,168,.35);transform:rotate(-15deg);transition:opacity 1.2s,transform 1.2s;}
+body:not(.s0) .stars{opacity:.15;}
+body:not(.s0):not(.s1) .stars{opacity:0;}
+body:not(.s0) .moon{opacity:0;transform:translateY(-40px) rotate(-15deg);}
+
+/* 狂怒火花 */
+.embers{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .6s;}
+body.s4 .embers{opacity:1;}
+.embers i{position:absolute;bottom:-10px;width:6px;height:6px;border-radius:50%;
+  background:radial-gradient(circle,#fff3c4 0%,#ffb02e 40%,rgba(255,80,30,0) 70%);animation:ember linear infinite;}
+@keyframes ember{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:1}100%{transform:translateY(-105vh) translateX(var(--dx,20px));opacity:0}}
+
+/* ---------- 版面 ---------- */
+.app{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding:16px 22px 18px;gap:8px;}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.logo{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;flex:none;
+  background:linear-gradient(145deg,rgba(255,255,255,.32),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.3);
+  box-shadow:0 10px 20px -10px rgba(0,0,0,.5);}
+.title{font-size:clamp(1.3rem,2.6vw,2rem);font-weight:900;letter-spacing:3px;text-shadow:0 3px 10px rgba(0,0,0,.35);}
+.title small{display:block;font-size:.5em;font-weight:700;letter-spacing:2px;opacity:.75;margin-top:2px;}
+.stats{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.stat{background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.24);
+  backdrop-filter:blur(8px);border-radius:16px;padding:6px 14px;text-align:center;min-width:88px;
+  box-shadow:0 10px 20px -14px rgba(0,0,0,.6);}
+.stat b{display:block;font-size:1.35rem;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums;}
+.stat span{font-size:.7rem;font-weight:700;letter-spacing:1px;opacity:.85;}
+.stat.gold b{color:#ffe27a;}
+.icon-btn{border:0;cursor:pointer;border-radius:12px;padding:9px 13px;font-size:1rem;font-weight:800;color:#fff;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);font-family:inherit;transition:background .2s,transform .15s;}
+.icon-btn:hover{background:rgba(255,255,255,.26);transform:translateY(-1px);}
+
+.stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;}
+.cy-wrap{position:relative;height:100%;max-height:72vh;aspect-ratio:400/440;}
+svg#cyclops{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));transition:filter .6s;}
+body.s4 svg#cyclops{filter:drop-shadow(0 0 30px rgba(255,70,40,.75)) drop-shadow(0 18px 24px rgba(0,0,0,.4));}
+
+/* 狀態名牌 */
+.badge{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);white-space:nowrap;
+  font-size:clamp(1.1rem,2.4vw,1.7rem);font-weight:900;letter-spacing:3px;padding:8px 26px;border-radius:999px;
+  background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.35);backdrop-filter:blur(6px);transition:all .4s;
+  box-shadow:0 12px 24px -12px rgba(0,0,0,.6);}
+body.s3 .badge{background:#7a0f16;border-color:#ffb3a8;}
+body.s4 .badge{background:#ff2a1f;border-color:#fff;animation:pulse .5s ease-in-out infinite;}
+@keyframes pulse{50%{transform:translateX(-50%) scale(1.08);}}
+
+/* 對話框 */
+.bubble{position:absolute;top:2%;left:74%;width:max-content;max-width:min(42vw,460px);
+  background:#fff;color:var(--ink);border-radius:26px;padding:14px 22px;
+  font-size:clamp(1.05rem,2.4vw,1.85rem);font-weight:900;letter-spacing:1px;line-height:1.4;
+  box-shadow:0 14px 30px -10px rgba(0,0,0,.45);opacity:0;transform:scale(.4) rotate(-6deg);transform-origin:0 100%;
+  transition:opacity .3s,transform .35s cubic-bezier(.175,.885,.32,1.4);}
+.bubble::after{content:'';position:absolute;left:-14px;bottom:18px;border:16px solid transparent;border-right-color:#fff;border-left:0;}
+.bubble.show{opacity:1;transform:scale(1) rotate(-3deg);}
+.bubble.dream{background:rgba(18,26,66,.78);color:#e8eeff;border:2px dashed rgba(255,255,255,.45);
+  font-size:clamp(.95rem,2vw,1.4rem);font-weight:700;backdrop-filter:blur(6px);}
+.bubble.dream::after{display:none;}
+/* 掉落堆疊的夢話 */
+#dreamLayer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden;}
+.dropb{position:absolute;left:0;top:0;will-change:transform;
+  background:rgba(18,26,66,.86);color:#eef2ff;border:2px dashed rgba(255,255,255,.5);border-radius:18px;
+  padding:7px 13px;font-size:clamp(.8rem,1.35vw,1rem);font-weight:800;line-height:1.4;letter-spacing:.5px;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.8);backdrop-filter:blur(4px);}
+.dropb.new{animation:dreamIn .45s cubic-bezier(.175,.885,.32,1.4);}
+.dropb{color:#2a2440;border-color:rgba(60,60,110,.35);}
+.dropb.c-yellow{background:rgba(255,246,190,.9);}
+.dropb.c-white{background:rgba(255,255,255,.9);}
+.dropb.c-blue{background:rgba(205,234,255,.9);}
+.dropb.c-pink{background:rgba(255,218,234,.9);}
+@keyframes dreamIn{from{opacity:0;scale:.4}}
+.dropb.fade{transition:opacity 2.5s ease;opacity:0;}
+.dropb.pop{transition:opacity .45s, scale .45s;opacity:0;scale:1.4;}
+body.s3 .bubble{background:#fff2d6;color:#8a1c1c;}
+body.s3 .bubble::after{border-right-color:#fff2d6;}
+body.s4 .bubble{background:#1a0003;color:#ff4a3d;border:3px solid #ff4a3d;font-size:clamp(1.2rem,3vw,2.3rem);animation:bshake .12s linear infinite;}
+body.s4 .bubble::after{border-right-color:#ff4a3d;}
+@keyframes bshake{0%{translate:0 0}25%{translate:3px -2px}50%{translate:-3px 2px}75%{translate:2px 3px}}
+
+/* ---------- 音量計 ---------- */
+.meter-row{display:flex;align-items:center;gap:16px;}
+.vol{flex:none;text-align:center;min-width:84px;}
+.vol b{display:block;font-size:2.1rem;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;}
+.vol span{font-size:.72rem;font-weight:700;letter-spacing:2px;opacity:.85;}
+.meter{position:relative;flex:1;height:38px;border-radius:20px;background:rgba(0,0,0,.38);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.5),0 10px 20px -14px rgba(0,0,0,.6);overflow:hidden;border:2px solid rgba(255,255,255,.25);}
+.zone{position:absolute;top:0;bottom:0;opacity:.22;}
+.fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:18px;
+  background:linear-gradient(90deg,#4fd1a5 0%,#9be15d 35%,#ffd23f 55%,#ff8a3d 72%,#ff2d2d 90%);
+  background-size:var(--mw,1000px) 100%;transition:width .08s linear;box-shadow:0 0 16px rgba(255,255,255,.25);}
+.fill::after{content:'';position:absolute;left:0;right:0;top:0;height:45%;border-radius:18px 18px 0 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0));}
+.peak{position:absolute;top:3px;bottom:3px;width:4px;border-radius:2px;background:#fff;left:0;box-shadow:0 0 8px #fff;transition:left .2s;}
+.tick{position:absolute;top:0;bottom:0;width:3px;background:rgba(255,255,255,.85);transform:translateX(-1.5px);}
+.tick em{position:absolute;top:50%;left:6px;transform:translateY(-50%);font-style:normal;font-size:.82rem;
+  font-weight:800;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8);}
+
+/* ---------- 設定面板 ---------- */
+.panel{position:fixed;top:0;right:0;height:100%;width:min(380px,92vw);z-index:20;
+  background:rgba(14,18,40,.95);backdrop-filter:blur(12px);border-left:1px solid rgba(255,255,255,.15);
+  padding:22px 22px 30px;overflow:auto;transform:translateX(105%);transition:transform .35s ease;}
+.panel.open{transform:none;}
+.panel h2{margin:0 0 4px;font-size:1.2rem;letter-spacing:2px;}
+.panel .hint{font-size:.8rem;opacity:.7;line-height:1.6;margin:4px 0 14px;}
+.field{margin:14px 0;}
+.field label{display:flex;justify-content:space-between;font-size:.88rem;font-weight:800;letter-spacing:1px;margin-bottom:6px;}
+.field label b{color:#ffd23f;font-variant-numeric:tabular-nums;}
+.field input[type=range]{width:100%;accent-color:#ffd23f;}
+.switch{display:flex;align-items:center;gap:10px;font-size:.9rem;font-weight:700;margin:12px 0;cursor:pointer;}
+.switch input{width:20px;height:20px;accent-color:#ffd23f;}
+.pbtn{width:100%;border:0;cursor:pointer;border-radius:12px;padding:12px;font-size:.95rem;font-weight:900;letter-spacing:1px;
+  font-family:inherit;color:#1d2340;background:linear-gradient(135deg,#ffe27a,#ffb02e);margin-top:6px;}
+.pbtn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);}
+.close-x{position:absolute;top:14px;right:14px;}
+/* 老師密碼鎖 */
+.lockbox{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(8,10,28,.66);backdrop-filter:blur(5px);padding:20px;}
+.lockbox.show{display:flex;}
+.lockcard{background:#fff;color:#1d2340;border-radius:22px;padding:24px 26px;width:100%;max-width:340px;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);animation:popIn .35s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}}
+.lockcard h3{margin:0 0 6px;font-size:1.2rem;letter-spacing:2px;}
+.lockcard p{margin:4px 0 12px;color:#5a6286;font-size:.86rem;}
+.lockcard input{width:100%;padding:12px;border-radius:12px;border:2px solid #dde2f2;font-size:1.1rem;text-align:center;font-family:inherit;letter-spacing:3px;}
+.lockcard input:focus{outline:none;border-color:#4f8cff;}
+.lockcard .lerr{color:#c0392b;font-weight:800;font-size:.85rem;min-height:1.3em;margin-top:6px;}
+.lockcard .lrow{display:flex;gap:10px;margin-top:8px;}
+.lockcard .lrow button{flex:1;border:0;cursor:pointer;border-radius:12px;padding:11px;font-family:inherit;font-weight:900;font-size:.95rem;}
+.lockcard .lgo{background:linear-gradient(135deg,#4f8cff,#2a5bd7);color:#fff;}
+.lockcard .lno{background:#eef1f8;color:#3a4266;}
+.lockcard.shake{animation:lshake .35s;}
+@keyframes lshake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+hr{border:0;border-top:1px dashed rgba(255,255,255,.2);margin:18px 0;}
+
+/* ---------- 開始畫面 ---------- */
+.overlay{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,10,28,.72);backdrop-filter:blur(6px);padding:20px;}
+.overlay.hide{display:none;}
+.card{background:#fff;color:var(--ink);border-radius:28px;padding:30px 34px;max-width:580px;width:100%;text-align:center;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.6);position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;inset:0 0 auto 0;height:6px;background:linear-gradient(90deg,#4fd1a5,#ffd23f,#ff8a3d,#ff2d2d);}
+.card h1{margin:4px 0 6px;font-size:1.7rem;letter-spacing:3px;}
+.card p{margin:8px 0;line-height:1.7;color:#4a5272;font-size:.95rem;}
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:16px 0 20px;}
+.levels div{background:#f1f3fa;border-radius:12px;padding:8px 2px;font-size:.78rem;font-weight:800;color:#3a4266;}
+.levels div span{display:block;font-size:1.4rem;}
+.start{display:inline-block;text-decoration:none;border:0;cursor:pointer;border-radius:16px;padding:15px 30px;font-size:1.15rem;font-weight:900;letter-spacing:2px;
+  font-family:inherit;color:#fff;background:linear-gradient(135deg,#4f8cff,#2a5bd7);box-shadow:0 12px 24px -12px #2a5bd7;margin:4px;}
+.start.demo{background:#eef1f8;color:#3a4266;box-shadow:none;}
+.start.go{background:linear-gradient(135deg,#ff9a3d,#ff4a3d);box-shadow:0 12px 24px -12px #ff4a3d;}
+.err,.frame-note{margin-top:16px;padding:12px 14px;border-radius:12px;font-size:.88rem;line-height:1.6;text-align:left;}
+.err{background:#fff1f0;color:#a5281b;display:none;}
+.err.show{display:block;}
+.frame-note{background:#fff7e6;color:#8a5a00;display:none;}
+body.in-frame .frame-note{display:block;}
+body.in-frame .mic-only{display:none;}
+.go-only{display:none;}
+body.in-frame .go-only{display:inline-block;}
+
+/* 示範滑桿 */
+.demo-bar{display:none;align-items:center;gap:10px;font-size:.85rem;font-weight:800;margin-bottom:6px;}
+body.demo .demo-bar{display:flex;}
+.demo-bar input{flex:1;accent-color:#ffd23f;}
+
+/* ============ 獨眼巨人：各部位 ============ */
+#cyclops .skin{fill:var(--skin);transition:fill .8s;}
+#cyclops .skin-dark{fill:var(--skin-dark);transition:fill .8s;}
+#cyclops .line{stroke:#1d2340;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;}
+.part{transition:transform .45s cubic-bezier(.3,1.4,.5,1),opacity .35s;}
+.mouth{opacity:0;transition:opacity .25s;}
+body.s0 .m0, body.s1 .m1, body.s2 .m2, body.s3 .m3, body.s4 .m4{opacity:1;}
+
+/* 眼皮 */
+#lid{transform:translateY(0);}
+body.s1 #lid{transform:translateY(-58px);}
+body.s2 #lid{transform:translateY(-82px);}
+body.s3 #lid,body.s4 #lid{transform:translateY(-140px);}
+#closedLash{opacity:0;}
+body.s0 #closedLash{opacity:1;}
+body.s0 #cyclops .breath{animation:breathe 3.6s ease-in-out infinite;}
+@keyframes breathe{50%{transform:scaleY(1.025) translateY(-3px);}}
+#cyclops .breath{transform-box:fill-box;transform-origin:50% 100%;}
+
+/* 睡覺鼻涕泡泡 */
+#snot{opacity:0;transform-box:fill-box;transform-origin:0% 50%;}
+body.s0 #snot{opacity:.9;animation:snot 3.6s ease-in-out infinite;}
+@keyframes snot{0%,100%{transform:scale(.3)}50%{transform:scale(1)}}
+
+/* 問號 */
+#qmark{opacity:0;transform-box:fill-box;transform-origin:50% 100%;}
+body.s1 #qmark{opacity:1;animation:qpop 1.6s ease-in-out infinite;}
+@keyframes qpop{50%{transform:translateY(-6px) rotate(8deg);}}
+
+/* 眼珠 */
+#iris{transform-box:view-box;transform-origin:200px 190px;transition:transform .4s;}
+body.s1 #iris{animation:look 5s ease-in-out infinite;}
+@keyframes look{0%,100%{transform:translate(0,4px)}30%{transform:translate(-16px,6px)}60%{transform:translate(16px,6px)}}
+body.s2 #iris{transform:translate(0,6px) scale(.95);}
+body.s3 #iris{transform:scale(.82);}
+body.s4 #iris{transform:scale(.68);animation:jitter .1s linear infinite;}
+@keyframes jitter{50%{transform:scale(.68) translate(1.5px,-1px)}}
+#irisFill{fill:var(--iris);transition:fill .5s;}
+body.s4 #irisFill{fill:#e0201a;}
+#veins{opacity:0;transition:opacity .4s;}
+body.s3 #veins{opacity:.45;}
+body.s4 #veins{opacity:1;}
+
+/* 眉毛 */
+.brow{transform-box:view-box;transform-origin:200px 112px;stroke:#1d2340;stroke-width:13;stroke-linecap:round;fill:none;}
+body.s0 #browL{transform:translateY(10px) rotate(-4deg);}  body.s0 #browR{transform:translateY(10px) rotate(4deg);}
+body.s1 #browL{transform:translateY(-8px) rotate(-10deg);} body.s1 #browR{transform:translateY(-8px) rotate(10deg);}
+body.s2 #browL{transform:translateY(4px) rotate(12deg);}   body.s2 #browR{transform:translateY(4px) rotate(-12deg);}
+body.s3 #browL{transform:translateY(10px) rotate(20deg);}  body.s3 #browR{transform:translateY(10px) rotate(-20deg);}
+body.s4 #browL{transform:translateY(14px) rotate(27deg);}  body.s4 #browR{transform:translateY(14px) rotate(-27deg);}
+body.s4 .brow{stroke-width:17;}
+
+/* 腮紅、怒氣、蒸氣、Zzz */
+#blush{transition:opacity .5s;}
+body.s2 #blush,body.s3 #blush,body.s4 #blush{opacity:0;}
+#anger{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
+body.s3 #anger{opacity:1;animation:throb .6s ease-in-out infinite;}
+body.s4 #anger{opacity:1;animation:throb .3s ease-in-out infinite;}
+@keyframes throb{50%{transform:scale(1.3);}}
+#steam{opacity:0;}
+body.s4 #steam{opacity:1;}
+#steam circle{animation:steam 1.1s ease-out infinite;transform-box:fill-box;transform-origin:50% 50%;}
+#steam circle:nth-child(2n){animation-delay:.35s;} #steam circle:nth-child(3n){animation-delay:.7s;}
+@keyframes steam{0%{transform:translateY(0) scale(.4);opacity:.95}100%{transform:translateY(-70px) scale(1.6);opacity:0}}
+#zzz{opacity:0;transition:opacity .4s;}
+body.s0 #zzz{opacity:1;}
+#zzz text{font-weight:900;fill:#dfe8ff;animation:zfloat 3s ease-in infinite;opacity:0;}
+#zzz text:nth-child(2){animation-delay:1s;} #zzz text:nth-child(3){animation-delay:2s;}
+@keyframes zfloat{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(40px,-90px);opacity:0}}
+#sweat{opacity:0;}
+body.s2 #sweat{opacity:1;animation:drip 2s ease-in infinite;}
+@keyframes drip{0%{transform:translateY(-6px);opacity:0}30%{opacity:1}100%{transform:translateY(22px);opacity:0}}
+
+/* 手臂 */
+.arm{transform-box:fill-box;}
+#armL{transform-origin:90% 15%;} #armR{transform-origin:10% 15%;}
+body.s0 #armL{transform:rotate(-6deg);} body.s0 #armR{transform:rotate(6deg);}
+body.s3 #armL{transform:rotate(25deg);} body.s3 #armR{transform:rotate(-25deg);}
+body.s4 #armL{transform:translate(-14px,-10px) rotate(100deg);} body.s4 #armR{transform:translate(14px,-10px) rotate(-100deg);}
+body.s4 #armL,body.s4 #armR{animation:fist .25s ease-in-out infinite alternate;}
+@keyframes fist{to{translate:0 -8px;}}
+
+/* 整隻巨人的動作 */
+#whole{transform-box:view-box;transform-origin:200px 400px;}
+body.s1 #whole{animation:bob 2.4s ease-in-out infinite;}
+@keyframes bob{50%{transform:translateY(-6px);}}
+body.s3 #whole{animation:stomp .5s ease-in-out infinite;}
+@keyframes stomp{50%{transform:translateY(-10px) scale(1.02);}}
+body.s4 #whole{animation:rage .12s linear infinite;}
+@keyframes rage{0%{transform:translate(0,0) scale(1.07)}25%{transform:translate(-5px,2px) scale(1.07)}50%{transform:translate(4px,-3px) scale(1.07)}75%{transform:translate(-3px,-2px) scale(1.07)}100%{transform:translate(0,0) scale(1.07)}}
+#ground{transform-box:fill-box;transform-origin:50% 50%;}
+body.s3 #ground{animation:gpulse .5s ease-in-out infinite;}
+@keyframes gpulse{50%{transform:scaleX(.9);opacity:.7}}
+body.s3{--skin:#8fbf8c;--skin-dark:#5d8f62;}
+body.s4{--skin:#e8584e;--skin-dark:#b0302b;}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;animation-iteration-count:1!important;}}
+@media (max-width:760px){.bubble{left:50%;top:-4%;transform-origin:50% 100%;max-width:80vw;}.bubble::after{display:none;}.stat{min-width:70px;padding:5px 10px;}}
+</style>
+</head>
+<body class="s0">
+
+<div class="bg b0 on"></div><div class="bg b1"></div><div class="bg b2"></div><div class="bg b3"></div><div class="bg b4"></div>
+<div class="hills"></div>
+<div class="stars" id="stars"></div>
+<div class="shooting"></div>
+<div class="moon"></div>
+<div class="embers" id="embers"></div>
+<div id="dreamLayer"></div>
+
+<div class="app">
+  <div class="top">
+    <div class="logo">👁️</div>
+    <div class="title">課後班學生<small>別吵醒獨眼巨人・音量守護任務</small></div>
+    <div class="stats">
+      <div class="stat"><b id="quietTime">00:00</b><span>安靜時間</span></div>
+      <div class="stat gold"><b id="bestTime">00:00</b><span>最長安靜</span></div>
+      <div class="stat"><b id="wakeCount">0</b><span>被吵醒</span></div>
+      <div class="stat"><b id="rageCount">0</b><span>狂怒次數</span></div>
+      <button class="icon-btn" onclick="toggleFull()" title="全螢幕">⛶</button>
+      <button class="icon-btn" onclick="askTeacher()" title="設定（老師專用）">⚙️</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="cy-wrap">
+      <svg id="cyclops" viewBox="0 0 400 440" aria-label="獨眼巨人">
+        <defs>
+          <clipPath id="eyeClip"><circle cx="200" cy="190" r="62"/></clipPath>
+          <path id="bodyShape" d="M200,72 C300,72 352,140 352,238 C352,330 290,392 200,392 C110,392 48,330 48,238 C48,140 100,72 200,72 Z"/>
+          <radialGradient id="hl" cx="34%" cy="22%" r="62%">
+            <stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".26"/>
+          </linearGradient>
+          <radialGradient id="rim" cx="50%" cy="50%" r="50%">
+            <stop offset=".82" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/>
+          </radialGradient>
+          <radialGradient id="scleraG" cx="45%" cy="38%" r="65%">
+            <stop offset="0" stop-color="#ffffff"/><stop offset=".75" stop-color="#f1f4fb"/><stop offset="1" stop-color="#cfd7ea"/>
+          </radialGradient>
+          <radialGradient id="irisG" cx="50%" cy="50%" r="50%">
+            <stop offset=".35" stop-color="#fff" stop-opacity=".18"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/>
+          </radialGradient>
+          <linearGradient id="hornG" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#e6c78f"/><stop offset="1" stop-color="#fff8e6"/>
+          </linearGradient>
+          <radialGradient id="groundG" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="bellyG" cx="50%" cy="40%" r="60%">
+            <stop offset="0" stop-color="#fff" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- 地面影子 -->
+        <ellipse id="ground" cx="200" cy="414" rx="150" ry="18" fill="url(#groundG)"/>
+
+        <!-- Zzz -->
+        <g id="zzz">
+          <text x="280" y="110" font-size="34">Z</text>
+          <text x="295" y="95" font-size="26">z</text>
+          <text x="308" y="82" font-size="20">z</text>
+        </g>
+
+        <g id="whole">
+          <!-- 蒸氣 -->
+          <g id="steam" fill="#fff">
+            <circle cx="152" cy="26" r="12"/><circle cx="248" cy="26" r="12"/>
+            <circle cx="140" cy="36" r="9"/><circle cx="260" cy="36" r="9"/>
+            <circle cx="160" cy="18" r="8"/><circle cx="240" cy="18" r="8"/>
+          </g>
+
+          <!-- 手臂 -->
+          <g class="part arm" id="armL">
+            <path class="skin line" d="M78,262 C40,270 28,320 46,352 C58,372 84,364 86,340 C88,318 96,300 104,288 Z"/>
+            <path d="M78,262 C40,270 28,320 46,352 C58,372 84,364 86,340 C88,318 96,300 104,288 Z" fill="url(#shade)"/>
+            <path class="line" fill="none" stroke-width="3.5" d="M52,350 q6,6 12,4 M60,358 q6,4 12,0"/>
+          </g>
+          <g class="part arm" id="armR">
+            <path class="skin line" d="M322,262 C360,270 372,320 354,352 C342,372 316,364 314,340 C312,318 304,300 296,288 Z"/>
+            <path d="M322,262 C360,270 372,320 354,352 C342,372 316,364 314,340 C312,318 304,300 296,288 Z" fill="url(#shade)"/>
+            <path class="line" fill="none" stroke-width="3.5" d="M348,350 q-6,6 -12,4 M340,358 q-6,4 -12,0"/>
+          </g>
+
+          <!-- 腳 -->
+          <g>
+            <ellipse class="skin-dark line" cx="148" cy="394" rx="42" ry="21"/>
+            <ellipse class="skin-dark line" cx="252" cy="394" rx="42" ry="21"/>
+            <g fill="#fff8e6" stroke="#1d2340" stroke-width="2.5">
+              <ellipse cx="124" cy="404" rx="7" ry="5"/><ellipse cx="140" cy="409" rx="7" ry="5"/><ellipse cx="157" cy="409" rx="7" ry="5"/>
+              <ellipse cx="243" cy="409" rx="7" ry="5"/><ellipse cx="260" cy="409" rx="7" ry="5"/><ellipse cx="276" cy="404" rx="7" ry="5"/>
+            </g>
+          </g>
+
+          <g class="breath">
+            <!-- 角 -->
+            <path class="line" fill="url(#hornG)" d="M150,98 C138,72 140,48 152,30 C160,52 172,70 186,84 Z"/>
+            <path class="line" fill="url(#hornG)" d="M250,98 C262,72 260,48 248,30 C240,52 228,70 214,84 Z"/>
+            <path fill="none" stroke="#b8945a" stroke-width="3" stroke-linecap="round" d="M146,76 q9,3 17,-3 M146,60 q6,2 11,-3 M254,76 q-9,3 -17,-3 M254,60 q-6,2 -11,-3"/>
+            <!-- 耳朵 -->
+            <ellipse class="skin line" cx="62" cy="205" rx="22" ry="32"/>
+            <ellipse class="skin-dark" cx="64" cy="207" rx="10" ry="18" opacity=".6"/>
+            <ellipse class="skin line" cx="338" cy="205" rx="22" ry="32"/>
+            <ellipse class="skin-dark" cx="336" cy="207" rx="10" ry="18" opacity=".6"/>
+            <!-- 身體 -->
+            <use href="#bodyShape" class="skin line"/>
+            <use href="#bodyShape" fill="url(#shade)"/>
+            <use href="#bodyShape" fill="url(#rim)"/>
+            <use href="#bodyShape" fill="url(#hl)"/>
+            <!-- 肚子 -->
+            <ellipse cx="200" cy="322" rx="98" ry="60" fill="url(#bellyG)"/>
+            <path fill="none" stroke="#1d2340" stroke-opacity=".18" stroke-width="3" stroke-linecap="round" d="M168,352 q32,10 64,0 M178,366 q22,6 44,0"/>
+            <!-- 斑點 -->
+            <g class="skin-dark" opacity=".45">
+              <circle cx="110" cy="150" r="9"/><circle cx="126" cy="132" r="5"/>
+              <circle cx="292" cy="142" r="7"/><circle cx="304" cy="300" r="11"/><circle cx="92" cy="292" r="7"/><circle cx="318" cy="276" r="5"/>
+            </g>
+            <!-- 頭頂毛 -->
+            <path class="line" fill="none" d="M186,76 C190,62 198,58 204,48 M200,74 C206,62 214,60 222,54"/>
+            <!-- 腮紅 -->
+            <g id="blush" fill="#ff8fa3" opacity=".55">
+              <ellipse cx="112" cy="268" rx="22" ry="12"/><ellipse cx="288" cy="268" rx="22" ry="12"/>
+              <g fill="#fff" opacity=".7"><circle cx="104" cy="264" r="2.5"/><circle cx="296" cy="264" r="2.5"/></g>
+            </g>
+            <!-- 怒氣符號 -->
+            <g id="anger" stroke="#d1101a" stroke-width="7" stroke-linecap="round" fill="none">
+              <path d="M286,116 q10,4 12,14"/><path d="M318,116 q-10,4 -12,14"/>
+              <path d="M286,150 q10,-4 12,-14"/><path d="M318,150 q-10,-4 -12,-14"/>
+            </g>
+            <!-- 問號 -->
+            <text id="qmark" x="292" y="128" font-size="52" font-weight="900" fill="#fff" stroke="#1d2340" stroke-width="4" paint-order="stroke">?</text>
+            <!-- 汗 -->
+            <path id="sweat" fill="#9fd8ff" stroke="#1d2340" stroke-width="3" d="M282,148 C290,160 294,168 288,174 C282,178 274,172 278,162 Z"/>
+
+            <!-- 眼睛 -->
+            <circle cx="200" cy="190" r="68" fill="#1d2340" opacity=".14"/>
+            <g clip-path="url(#eyeClip)">
+              <circle cx="200" cy="190" r="62" fill="url(#scleraG)"/>
+              <g id="veins" stroke="#e23b3b" stroke-width="2.5" fill="none" stroke-linecap="round">
+                <path d="M140,178 q14,4 22,-2 q6,8 14,6"/><path d="M146,214 q12,-2 18,6 q8,-2 12,4"/>
+                <path d="M260,176 q-14,4 -22,-2 q-6,8 -14,6"/><path d="M254,214 q-12,-2 -18,6 q-8,-2 -12,4"/>
+                <path d="M200,130 q-4,10 2,16"/>
+              </g>
+              <g id="iris">
+                <circle id="irisFill" cx="200" cy="192" r="31"/>
+                <circle cx="200" cy="192" r="31" fill="url(#irisG)"/>
+                <g stroke="#fff" stroke-opacity=".18" stroke-width="2">
+                  <path d="M200,166 v8 M200,210 v8 M174,192 h8 M218,192 h8 M182,174 l5,5 M213,205 l5,5 M218,174 l-5,5 M187,205 l-5,5"/>
+                </g>
+                <circle cx="200" cy="192" r="15" fill="#10142b"/>
+                <circle cx="212" cy="180" r="8" fill="#fff"/>
+                <circle cx="190" cy="204" r="3.5" fill="#fff" opacity=".85"/>
+              </g>
+              <g id="lid" class="part">
+                <rect class="skin" x="130" y="120" width="140" height="132"/>
+                <rect x="130" y="120" width="140" height="132" fill="url(#hl)"/>
+                <path class="line" fill="none" d="M136,250 Q200,262 264,250"/>
+              </g>
+            </g>
+            <circle cx="200" cy="190" r="62" fill="none" class="line"/>
+            <!-- 閉眼睫毛 -->
+            <g id="closedLash" class="line" fill="none">
+              <path d="M150,196 Q200,226 250,196"/>
+              <path d="M166,207 l-6,12 M184,213 l-3,13 M200,215 l0,13 M216,213 l3,13 M234,207 l6,12"/>
+            </g>
+            <!-- 眉毛 -->
+            <path id="browL" class="brow part" d="M140,112 L200,112"/>
+            <path id="browR" class="brow part" d="M200,112 L260,112"/>
+
+            <!-- 嘴巴：五種 -->
+            <g class="mouth m0">
+              <ellipse cx="200" cy="300" rx="13" ry="10" fill="#5a1828" class="line"/>
+              <circle id="snot" cx="214" cy="296" r="16" fill="#d7f0ff" stroke="#8fc3e8" stroke-width="2.5"/>
+            </g>
+            <g class="mouth m1">
+              <ellipse cx="200" cy="302" rx="26" ry="22" fill="#5a1828" class="line"/>
+              <ellipse cx="200" cy="314" rx="14" ry="7" fill="#ff7a8a"/>
+              <path fill="#fff" stroke="#1d2340" stroke-width="2.5" d="M184,284 l5,10 l5,-11 Z"/>
+            </g>
+            <g class="mouth m2">
+              <path class="line" fill="none" stroke-width="7" d="M164,314 Q200,286 236,314"/>
+              <path fill="#fff" stroke="#1d2340" stroke-width="2.5" stroke-linejoin="round" d="M178,304 l4,-12 l6,9 Z M222,304 l-4,-12 l-6,9 Z"/>
+            </g>
+            <g class="mouth m3">
+              <path class="line" fill="#5a1020" d="M156,288 Q200,276 244,288 Q238,348 200,350 Q162,348 156,288 Z"/>
+              <path fill="#fff" d="M164,288 Q200,280 236,288 L234,298 Q200,292 166,298 Z"/>
+              <ellipse cx="200" cy="336" rx="20" ry="9" fill="#ff6b7d"/>
+              <path fill="#ff6b7d" d="M196,296 q4,10 8,0 Z"/>
+            </g>
+            <g class="mouth m4">
+              <path class="line" fill="#30050b" d="M132,280 Q200,268 268,280 Q262,370 200,372 Q138,370 132,280 Z"/>
+              <path fill="#fff" class="line" stroke-width="3" d="M150,282 L162,308 L174,280 Z M226,280 L238,308 L250,282 Z"/>
+              <path fill="#fff" class="line" stroke-width="3" d="M168,366 L178,346 L188,370 Z M212,370 L222,346 L232,366 Z"/>
+              <ellipse cx="200" cy="352" rx="26" ry="10" fill="#e0405a"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <div class="bubble" id="bubble"></div>
+      <div class="badge" id="badge">😴 熟睡中</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="demo-bar"><span>🎛️ 示範音量</span><input type="range" id="demoSlider" min="0" max="100" value="20"><span id="demoVal">20</span></div>
+    <div class="meter-row">
+      <div class="vol"><b id="volNum">0</b><span>音量</span></div>
+      <div class="meter" id="meter">
+        <div id="zones"></div>
+        <div class="fill" id="fill"></div>
+        <div class="peak" id="peak"></div>
+        <div id="ticks"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 老師密碼 -->
+<div class="lockbox" id="lockbox">
+  <div class="lockcard" id="lockcard">
+    <h3>🔒 老師專用</h3>
+    <p>請輸入老師密碼，才能打開設定。</p>
+    <input type="password" id="tpwIn" inputmode="numeric" autocomplete="off" placeholder="老師密碼">
+    <div class="lerr" id="tpwErr"></div>
+    <div class="lrow"><button class="lno" onclick="closeLock()">取消</button><button class="lgo" onclick="checkTeacher()">確定</button></div>
+  </div>
+</div>
+
+<!-- 設定面板 -->
+<aside class="panel" id="panel">
+  <button class="icon-btn close-x" onclick="openPanel(false)">✕</button>
+  <h2>⚙️ 巨人設定</h2>
+  <p class="hint" id="lockTimer" style="opacity:1;color:#ffd23f;font-weight:800"></p>
+  <p class="hint">數字是畫面下方的音量（0–100）。音量超過門檻約半秒，巨人就會升級；安靜下來幾秒後，會一級一級慢慢平靜回去。</p>
+
+  <button class="pbtn" id="calBtn" onclick="calibrate()">🤫 安靜校正（請全班安靜 3 秒）</button>
+  <p class="hint">依照教室目前的安靜程度，自動調整四個門檻。換教室或換裝置時建議做一次。</p>
+
+  <div class="field"><label>👀 醒來門檻 <b id="t0v"></b></label><input type="range" min="5" max="95" id="t0"></div>
+  <div class="field"><label>😠 皺眉門檻 <b id="t1v"></b></label><input type="range" min="5" max="97" id="t1"></div>
+  <div class="field"><label>🗯️ 罵人門檻 <b id="t2v"></b></label><input type="range" min="5" max="98" id="t2"></div>
+  <div class="field"><label>🔥 狂怒門檻 <b id="t3v"></b></label><input type="range" min="5" max="99" id="t3"></div>
+  <div class="field"><label>🎚️ 麥克風靈敏度 <b id="gainv"></b></label><input type="range" min="-20" max="20" id="gain"></div>
+  <div class="field"><label>⏳ 平靜下來需要的秒數 <b id="calmv"></b></label><input type="range" min="1" max="8" step="0.5" id="calm"></div>
+
+  <label class="switch"><input type="checkbox" id="speakOn"> 巨人開口說話（用電腦語音唸出對話）</label>
+  <p class="hint">開啟後，巨人說話時會暫停偵測，避免把自己的聲音算進去。</p>
+  <label class="switch"><input type="checkbox" id="dreamOn"> 安靜時巨人會說夢話</label>
+
+  <hr>
+  <button class="pbtn ghost" onclick="resetStats()">🔄 統計歸零</button>
+  <button class="pbtn ghost" onclick="resetDefaults()">↩️ 門檻恢復預設值</button>
+</aside>
+
+<!-- 開始畫面 -->
+<div class="overlay" id="overlay">
+  <div class="card">
+    <h1>🌙 課後班學生・別吵醒獨眼巨人</h1>
+    <p>巨人正在呼呼大睡，還在說夢話。<br>教室越吵，他就越生氣——千萬別讓他狂怒！</p>
+    <div class="levels">
+      <div><span>😴</span>熟睡</div><div><span>👀</span>醒來</div><div><span>😠</span>皺眉</div>
+      <div><span>🗯️</span>罵人</div><div><span>🔥</span>狂怒</div>
+    </div>
+    <button class="start mic-only" onclick="startMic()">🎤 開始偵測</button>
+    <a class="start go go-only" id="goLink" target="_blank" rel="noopener">🚀 開新視窗開始偵測</a>
+    <button class="start demo" onclick="startDemo()">🎛️ 示範模式</button>
+    <div class="frame-note" id="frameNote">📌 這個畫面目前嵌在網頁裡，瀏覽器不允許嵌入的畫面使用麥克風。請按「開新視窗開始偵測」，在新分頁使用；「示範模式」在這裡可以直接玩。</div>
+    <p style="font-size:.8rem;margin-top:14px">按下「開始偵測」後，請允許瀏覽器使用麥克風。聲音只在這台電腦上即時計算，不會錄音或上傳。</p>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<script src="matter.min.js"></script>
+<script>
+/* ===================== 放到網路上之後，可把網址貼在這裡 =====================
+   協作平台若用「嵌入程式碼」放這個頁面，「開新視窗」按鈕會連到這個網址。
+   例如：const APP_URL = 'https://paul9794-png.github.io/noise-meter/afterschool/';            */
+const APP_URL = 'https://paul9794-png.github.io/noise-meter/cyclops/';
+
+/* ===================== 設定 ===================== */
+const DEFAULTS = { t:[40,55,68,80], gain:0, calm:2.5, speak:false, dream:true };
+function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+let cfg = Object.assign({}, DEFAULTS, lsGet('cyclopsAfter') || {});
+cfg.t = (cfg.t && cfg.t.length===4) ? cfg.t.slice() : DEFAULTS.t.slice();
+
+/* ===================== 台詞 ===================== */
+const STATES = [
+  { badge:'😴 熟睡中', lines:[] },
+  { badge:'👀 被吵醒了', lines:[
+    '嗯……？誰把我的美夢吵掉了？我剛夢到雞排耶……',
+    '哈～啊～我才睡了三秒……',
+    '我只有一顆眼睛，但是我全部都看到囉。',
+    '咦？下課了嗎？沒有？那怎麼這麼熱鬧？',
+    '噓——我在充電，電量只剩 3%……',
+    '是誰在講話？我的耳朵比校長還靈喔。'
+  ]},
+  { badge:'😠 皺眉頭', lines:[
+    '我的眉毛已經皺成一個勾勾了……',
+    '這個音量，我給它一顆星，負評。',
+    '我的起床氣正在預熱中……',
+    '我數到三喔……一……一點五……',
+    '一顆眼睛瞪人，火力全部集中！',
+    '再吵，我的眉毛要打結了啦！'
+  ]},
+  { badge:'🗯️ 開罵了', lines:[
+    '太～吵～了！我的眼屎都被震掉了！',
+    '你們是在開演唱會嗎？我沒買票耶！',
+    '再吵，我就唱歌給你們聽，我唱歌超～難聽！',
+    '音量超標！警告！警告！',
+    '我的獨眼雷達已經鎖定吵鬧的方向了！',
+    '我的角快要冒煙了啦！'
+  ]},
+  { badge:'🔥 狂怒！', lines:[
+    '吼——！！全部給我安靜！！',
+    '起床氣爆表！！爆表啦！！',
+    '課後班！！我要把吵鬧聲通通吃掉！！',
+    '火山爆發！！眼睛冒火中！！',
+    '警報！警報！巨人暴走中！！',
+    '我的耐心只剩零點零零一！！'
+  ]}
+];
+/* 降級時說的話：key = 降到哪一級 */
+const CALM = {
+  3:['呼……火氣降了一點點……','好，我先把火山蓋起來……'],
+  2:['嗯，有比較好了……','我的眉毛慢慢鬆開了……'],
+  1:['這樣還可以……我要躺回去了……','好啦好啦，我原諒你們……'],
+  0:['那我……繼續睡囉……晚安……','呼……謝謝大家……我回去做夢了……','好安靜……我最喜歡課後班了……Zzz']
+};
+/* 夢話：夢到同學做好事（名字中間的字改成「小」，程式裡不放完整姓名） */
+const KIDS = [
+  ...['高小薺','戴小荃','林小莛','王小全','吳小宇','黃小皓','張小皓','黃小穎','林小銓','謝小諺'].map(n=>({n, g:'b'})),   // 男生
+  ...['蕭小筑','黃小榆','宮澤小葵','陳小樂','簡小潔','蔣小妘','李小怜','王小綺'].map(n=>({n, g:'g'}))   // 女生
+];
+const DREAM_ALL = [
+  '我夢到……{n}把地上的垃圾撿起來了……好棒喔……',
+  '我夢到……{n}借橡皮擦給忘記帶的同學……',
+  '我夢到……{n}扶起跌倒的同學，還問他痛不痛……',
+  '我夢到……{n}主動幫老師擦黑板……擦得亮晶晶……',
+  '我夢到……{n}排隊乖乖的，一次都沒有插隊……',
+  '我夢到……{n}耐心地教同學寫不會的數學題……',
+  '我夢到……{n}把營養午餐吃光光，還幫忙收餐桶……',
+  '我夢到……{n}跟打掃阿姨說謝謝，阿姨笑得好開心……',
+  '我夢到……{n}安慰難過的同學，陪他一起想辦法……',
+  '我夢到……{n}的作業寫得超工整，老師給了三個讚……',
+  '我夢到……{n}幫同學把掉在地上的鉛筆撿起來……',
+  '我夢到……{n}看到有人需要幫忙，第一個舉手……',
+  '我夢到……{n}把教室的燈和電扇隨手關掉，好環保……',
+  '我夢到……{n}說到做到，答應的事都有完成……',
+  '我夢到……{n}主動幫忙把大家的椅子靠好……',
+  '我夢到……{n}看到新同學一個人，就邀他一起玩……',
+  '我夢到……{n}把撿到的錢包交給老師，好誠實……',
+  '我夢到……{n}吵架後第一個說「對不起」，好勇敢……',
+  '我夢到……{n}跟同學說「你好棒」，大家都笑了……',
+  '我夢到……{n}輕輕關門，沒有吵到隔壁班……',
+  '我夢到……{n}幫忙澆花，植物都長得好高……',
+  '我夢到……{n}把自己的點心分給忘記帶的同學……',
+  '我夢到……{n}讓座給需要的人，好貼心……',
+  '我夢到……{n}耐心等別人把話說完才發言……',
+  '我夢到……{n}把垃圾分類分得好仔細……',
+  '我夢到……{n}幫同學撐傘走到校門口……',
+  '我夢到……{n}看到有人被笑，站出來說「不可以這樣」……',
+  '我夢到……{n}輸了比賽還是笑著跟對手握手……',
+  '我夢到……{n}主動整理亂掉的書櫃……',
+  '我夢到……{n}跟警衛伯伯說早安，伯伯好開心……',
+  '我夢到……{n}幫生病請假的同學抄聯絡簿……',
+  '我夢到……{n}上課專心聽講，眼睛亮晶晶……',
+  '我夢到……{n}稱讚別人的優點，大家感情更好了……',
+  '我夢到……{n}自動自發寫完作業才去玩……',
+  '我夢到……{n}幫忙把走廊上的水擦乾，怕大家滑倒……',
+  '我夢到……{n}對小一的學弟妹好溫柔……',
+  '我夢到……{n}把好書推薦給同學一起看……',
+  '我夢到……{n}遇到困難也不放棄，一直努力……',
+  '我夢到……{n}回家主動幫忙做家事，家人好開心……',
+  '我夢到……{n}安靜排隊裝水，一點都不推擠……'
+];
+const DREAM_B = [
+  '我夢到……{n}好帥喔……帥到我的眼睛閃閃發光……',
+  '我夢到……{n}打球超帥，還把球讓給別人玩……',
+  '我夢到……{n}帥氣地幫忙搬一大疊作業本……',
+  '我夢到……{n}又帥又有禮貌，見到老師都會打招呼……'
+];
+const DREAM_G = [
+  '我夢到……{n}好漂亮喔……漂亮到月亮都害羞了……',
+  '我夢到……{n}笑起來好甜，大家都跟著開心起來……',
+  '我夢到……{n}好漂亮，還溫柔地幫同學綁鞋帶……',
+  '我夢到……{n}又漂亮又貼心，主動幫忙發作業簿……'
+];
+let kidDeck = [], lastTpl = '';
+function nextDream(){
+  if(!kidDeck.length){                       // 每位同學都輪到一次才會重複
+    kidDeck = KIDS.slice();
+    for(let i=kidDeck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [kidDeck[i],kidDeck[j]]=[kidDeck[j],kidDeck[i]]; }
+  }
+  const k = kidDeck.pop();
+  const pool = DREAM_ALL.concat(k.g==='b' ? DREAM_B : DREAM_G).filter(t=>t!==lastTpl);
+  const tpl = pool[Math.floor(Math.random()*pool.length)];
+  lastTpl = tpl;
+  return '💭（夢話）' + tpl.replace('{n}', k.n);
+}
+let lastLine = '';
+function pick(arr){
+  if(arr.length < 2) return arr[0];
+  let s; do{ s = arr[Math.floor(Math.random()*arr.length)]; }while(s === lastLine);
+  lastLine = s; return s;
+}
+
+/* ===================== 畫面元素 ===================== */
+const $ = id => document.getElementById(id);
+const bgs = document.querySelectorAll('.bg');
+
+(function makeSky(){
+  const box = $('stars');
+  for(let i=0;i<80;i++){
+    const s = document.createElement('i');
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*70+'%';
+    const z = Math.random()*2.2+1;
+    s.style.width = s.style.height = z+'px';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    box.appendChild(s);
+  }
+  const em = $('embers');
+  for(let i=0;i<34;i++){
+    const e = document.createElement('i');
+    e.style.left = Math.random()*100+'%';
+    const z = Math.random()*6+4;
+    e.style.width = e.style.height = z+'px';
+    e.style.animationDuration = (Math.random()*2.5+2.2)+'s';
+    e.style.animationDelay = (Math.random()*3)+'s';
+    e.style.setProperty('--dx', (Math.random()*120-60)+'px');
+    em.appendChild(e);
+  }
+})();
+
+function drawTicks(){
+  const names = ['👀 醒','😠 皺眉','🗯️ 罵','🔥 狂怒'];
+  const zoneColors = ['#4fd1a5','#ffd23f','#ff9a3d','#ff5a3d','#ff1a1a'];
+  const t = cfg.t, edges = [0, ...t, 100];
+  let z = '';
+  for(let i=0;i<5;i++) z += `<div class="zone" style="left:${edges[i]}%;width:${edges[i+1]-edges[i]}%;background:${zoneColors[i]}"></div>`;
+  $('zones').innerHTML = z;
+  let h = '';
+  t.forEach((v,i)=>{ h += `<div class="tick" style="left:${v}%"><em>${names[i]}</em></div>`; });
+  $('ticks').innerHTML = h;
+  $('meter').style.setProperty('--mw', $('meter').clientWidth+'px');
+}
+window.addEventListener('resize', drawTicks);
+
+/* ===================== 設定面板 ===================== */
+function bindPanel(){
+  for(let i=0;i<4;i++){
+    const el = $('t'+i);
+    el.oninput = ()=>{
+      cfg.t[i] = +el.value;
+      for(let j=i+1;j<4;j++) if(cfg.t[j] <= cfg.t[j-1]) cfg.t[j] = Math.min(99, cfg.t[j-1]+1);
+      for(let j=i-1;j>=0;j--) if(cfg.t[j] >= cfg.t[j+1]) cfg.t[j] = Math.max(5, cfg.t[j+1]-1);
+      syncPanel(); save();
+    };
+  }
+  $('gain').value = cfg.gain; $('gain').oninput = e=>{ cfg.gain=+e.target.value; syncPanel(); save(); };
+  $('calm').value = cfg.calm; $('calm').oninput = e=>{ cfg.calm=+e.target.value; syncPanel(); save(); };
+  $('speakOn').checked = !!cfg.speak; $('speakOn').onchange = e=>{ cfg.speak=e.target.checked; save(); };
+  $('dreamOn').checked = cfg.dream !== false; $('dreamOn').onchange = e=>{ cfg.dream=e.target.checked; save(); };
+  syncPanel();
+}
+function syncPanel(){
+  for(let i=0;i<4;i++){ $('t'+i).value = cfg.t[i]; $('t'+i+'v').textContent = cfg.t[i]; }
+  $('gainv').textContent = (cfg.gain>0?'+':'')+cfg.gain;
+  $('calmv').textContent = cfg.calm+' 秒';
+  drawTicks();
+}
+function save(){ lsSet('cyclopsAfter', cfg); }
+function openPanel(on){ $('panel').classList.toggle('open', on); }
+
+/* ===== 設定要老師密碼（只存雜湊值，不存密碼本身）；解鎖 50 秒後自動上鎖，要重新輸入 ===== */
+const TEACHER_HASH = '012e6c588b086f768ee49098519bdfdbfb4454a23317518964e1982f6fcbc302';
+const UNLOCK_MS = 50 * 1000;              // 輸入老師密碼後 50 秒內有效，之後要重新輸入
+const MAX_FAILS = 3;                      // 連錯 3 次鎖 1 分鐘
+let unlockUntil = 0, lockFails = 0, lockUntil = 0, unlockTimer = null;
+function teacherOK(){ return Date.now() < unlockUntil; }
+function tickUnlock(){
+  const left = unlockUntil - Date.now();
+  if(left <= 0){
+    clearInterval(unlockTimer); unlockTimer = null; unlockUntil = 0;
+    $('lockTimer').textContent = '';
+    if($('panel').classList.contains('open')){ openPanel(false); }   // 時間到自動關閉設定
+    return;
+  }
+  const sec = Math.ceil(left / 1000);
+  $('lockTimer').textContent = `🔓 已解鎖，${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')} 後自動上鎖`;
+}
+async function sha256(t){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function askTeacher(){
+  if(teacherOK()){ openPanel(true); return; }
+  $('tpwIn').value=''; $('tpwErr').textContent='';
+  $('lockbox').classList.add('show'); setTimeout(()=>$('tpwIn').focus(), 50);
+}
+function closeLock(){ $('lockbox').classList.remove('show'); }
+async function checkTeacher(){
+  const now = Date.now();
+  if(now < lockUntil){ $('tpwErr').textContent = `錯太多次了，請 ${Math.ceil((lockUntil-now)/1000)} 秒後再試`; return; }
+  const v = $('tpwIn').value.trim(); if(!v) return;
+  let ok = false;
+  try{ ok = (await sha256('607-cyclops:' + v)) === TEACHER_HASH; }catch(e){ ok = false; }
+  if(ok){
+    unlockUntil = Date.now() + UNLOCK_MS; lockFails = 0;
+    clearInterval(unlockTimer); unlockTimer = setInterval(tickUnlock, 1000); tickUnlock();
+    closeLock(); openPanel(true); return;
+  }
+  lockFails++; $('tpwIn').value='';
+  const c = $('lockcard'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+  if(lockFails >= MAX_FAILS){ lockUntil = Date.now() + 60000; lockFails = 0; $('tpwErr').textContent = '錯太多次了，請 1 分鐘後再試'; }
+  else $('tpwErr').textContent = '密碼不對喔！';
+}
+$('tpwIn').addEventListener('keydown', e=>{ if(e.key==='Enter') checkTeacher(); });
+function resetDefaults(){ cfg = Object.assign({}, DEFAULTS, {t:DEFAULTS.t.slice(), speak:cfg.speak, dream:cfg.dream}); bindPanel(); save(); }
+
+/* ===================== 嵌入偵測（協作平台） ===================== */
+const inFrame = (()=>{ try{ return window.self !== window.top; }catch(e){ return true; } })();
+if(inFrame){
+  document.body.classList.add('in-frame');
+  const url = APP_URL || (/^https?:/.test(location.href) ? location.href : '');
+  if(url){ $('goLink').href = url; }
+  else{
+    $('goLink').style.display = 'none';
+    $('frameNote').innerHTML = '📌 這個畫面目前嵌在網頁裡，瀏覽器不允許嵌入的畫面使用麥克風。<br>請把這個檔案放到 GitHub Pages 等網址，再在協作平台放一個「按鈕」連過去；或把網址填進程式最上方的 APP_URL。「示範模式」在這裡可以直接玩。';
+  }
+}
+
+/* ===================== 音量偵測 ===================== */
+let audioCtx=null, analyser=null, buf=null, demo=false, running=false;
+let rawLevel=0, smooth=0, peak=0, peakAt=0;
+
+async function startMic(){
+  $('err').classList.remove('show');
+  if(!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    showErr('這個開啟方式無法使用麥克風。請用 Chrome 或 Edge 直接開啟這個頁面（https 網址或電腦裡的檔案都可以）。');
+    return;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false }
+    });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    buf = new Float32Array(analyser.fftSize);
+    src.connect(analyser);
+    begin();
+  }catch(e){
+    if(e && (e.name==='NotAllowedError' || e.name==='SecurityError')){
+      showErr('麥克風被拒絕了。請點網址列左邊的圖示，把「麥克風」改成允許，再重新整理。<br>如果這個頁面是嵌在 Google 協作平台裡，請改用「開新視窗」開啟。');
+    }else if(e && e.name==='NotFoundError'){
+      showErr('找不到麥克風。請確認電腦有接麥克風或視訊鏡頭。');
+    }else{
+      showErr('無法啟動麥克風：'+(e && e.message ? e.message : e));
+    }
+  }
+}
+function showErr(html){ const el=$('err'); el.innerHTML='⚠️ '+html; el.classList.add('show'); }
+
+function startDemo(){
+  demo = true;
+  document.body.classList.add('demo');
+  const s = $('demoSlider');
+  s.oninput = ()=>{ $('demoVal').textContent = s.value; };
+  begin();
+}
+
+function begin(){
+  $('overlay').classList.add('hide');
+  running = true;
+  lastTick = performance.now();
+  quietSince = performance.now();
+  nextDreamAt = performance.now() + DREAM_FIRST;
+  keepAwake();
+  requestAnimationFrame(loop);
+}
+
+function readLevel(){
+  if(demo) return +$('demoSlider').value + (Math.random()*4-2);
+  analyser.getFloatTimeDomainData(buf);
+  let sum = 0;
+  for(let i=0;i<buf.length;i++) sum += buf[i]*buf[i];
+  const rms = Math.sqrt(sum/buf.length);
+  const db = 20*Math.log10(rms + 1e-9);
+  return (db + 75 + cfg.gain) * 100/65;          // -75dB → 0，-10dB → 100
+}
+
+/* ===================== 狀態機 ===================== */
+let state=0, upSince=null, downSince=null, lastTick=0;
+/* 夢話時間：睡著 8 秒後第一句；每句顯示 8 秒；說完停 10–15 秒再說下一句 */
+const DREAM_FIRST = 8000, DREAM_SHOW = 8000, DREAM_GAP_MIN = 10000, DREAM_GAP_MAX = 15000;
+let quietMs=0, bestMs=0, quietSince=0, wakeCount=0, rageCount=0, muteUntil=0, nextDreamAt=0;
+
+function targetFor(level){
+  let t = 0;
+  for(let i=0;i<4;i++) if(level >= cfg.t[i]) t = i+1;
+  return t;
+}
+
+function loop(now){
+  if(!running) return;
+  const dt = Math.min(200, now - lastTick); lastTick = now;
+
+  const lv = Math.max(0, Math.min(100, readLevel()));
+  rawLevel = lv;
+  smooth += (lv - smooth) * (lv > smooth ? 0.35 : 0.07);   // 變大快、變小慢
+  if(lv > peak || now - peakAt > 1500){ peak = lv; peakAt = now; }
+
+  $('fill').style.width = smooth+'%';
+  $('peak').style.left = peak+'%';
+  $('volNum').textContent = Math.round(smooth);
+
+  if(now > muteUntil){
+    const target = targetFor(smooth);
+    if(target > state){
+      downSince = null;
+      upSince = upSince ?? now;
+      if(now - upSince >= (target >= 4 ? 700 : 450)){ setState(target, now); upSince = null; }
+    }else if(target < state){
+      upSince = null;
+      downSince = downSince ?? now;
+      const need = (state === 1 ? cfg.calm + 1.5 : cfg.calm) * 1000;
+      if(now - downSince >= need){ setState(state - 1, now); downSince = now; }
+    }else{
+      upSince = null; downSince = null;
+    }
+  }
+
+  if(state === 0){
+    quietMs += dt;
+    const streak = now - quietSince;
+    if(streak > bestMs){ bestMs = streak; $('bestTime').textContent = fmt(bestMs); }
+    $('quietTime').textContent = fmt(quietMs);
+    if(cfg.dream !== false && now >= nextDreamAt){
+      spawnDream(nextDream());
+      nextDreamAt = now + DREAM_SHOW + DREAM_GAP_MIN + Math.random()*(DREAM_GAP_MAX - DREAM_GAP_MIN);
+    }
+  }
+  requestAnimationFrame(loop);
+}
+
+function fmt(ms){
+  const s = Math.floor(ms/1000);
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+let bubbleTimer = null;
+/* ===================== 夢話掉落物理（Matter.js） =====================
+   夢話先在巨人左邊或右邊浮著顯示 DREAM_SHOW 毫秒，然後自由落體掉到地上堆起來；
+   巨人醒來時全部消失。 */
+const Phys = (()=>{
+  if(typeof Matter === 'undefined') return null;
+  const {Engine, Runner, Bodies, Body, Composite, Events, Query} = Matter;
+  const engine = Engine.create({ gravity:{ x:0, y:0.55 } });   // 二分之一引力，掉得比較慢
+  const runner = Runner.create();
+  Runner.run(runner, engine);
+  let walls = [];
+  const items = [];                    // {body, el, falling}
+  const SHRINK_TO = 0.5, SHRINK_MS = 1600;   // 掉落時縮到一半，約 1.6 秒縮完
+  const MAX_DREAMS = 50;               // 累計 50 句後，慢慢全部消失再重來
+  let fadeTimer = null;
+  function checkFull(){
+    if(items.length < MAX_DREAMS || fadeTimer) return;
+    fadeTimer = setTimeout(fadeAll, 6000);          // 等最後一句掉到地上再開始淡出
+  }
+  function fadeAll(){
+    fadeTimer = null;
+    const old = items.splice(0);
+    old.forEach(it=>it.el.classList.add('fade'));
+    setTimeout(()=>{ old.forEach(it=>{ Composite.remove(engine.world, it.body); it.el.remove(); }); }, 2600);
+    fading.push(...old);
+    setTimeout(()=>{ for(const it of old){ const k=fading.indexOf(it); if(k>=0) fading.splice(k,1); } }, 2700);
+  }
+  const fading = [];
+  function bounds(){
+    const vw = innerWidth, vh = innerHeight;
+    const bottom = document.querySelector('.meter-row') && document.querySelector('.meter-row').parentElement;
+    const floorY = bottom ? bottom.getBoundingClientRect().top - 4 : vh - 60;
+    const wrap = document.querySelector('.cy-wrap').getBoundingClientRect();
+    return { vw, vh, floorY, gl: wrap.left + 10, gr: wrap.right - 10, gtop: wrap.top + wrap.height*0.15 };
+  }
+  function buildWalls(){
+    Composite.remove(engine.world, walls);
+    const b = bounds(), T = 200;
+    walls = [
+      Bodies.rectangle(b.vw/2, b.floorY + T/2, b.vw*3, T, { isStatic:true, friction:0.9 }),           // 地面
+      Bodies.rectangle(-T/2, b.vh/2, T, b.vh*4, { isStatic:true }),                                    // 左牆
+      Bodies.rectangle(b.vw + T/2, b.vh/2, T, b.vh*4, { isStatic:true }),                              // 右牆
+      Bodies.rectangle((b.gl+b.gr)/2, (b.gtop + b.floorY)/2, Math.max(40, b.gr-b.gl), b.floorY - b.gtop,
+        { isStatic:true, chamfer:{ radius:60 }, friction:0.3 })                                          // 巨人（擋住，讓夢話堆在兩旁）
+    ];
+    Composite.add(engine.world, walls);
+  }
+  buildWalls();
+  let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(buildWalls, 200); });
+
+  Events.on(engine, 'afterUpdate', ()=>{
+    for(const it of items.concat(fading)){
+      // 掉下來時，字卡在 SHRINK_MS 內慢慢縮小到 SHRINK_TO（約二分之一），物理大小也跟著縮
+      if(it.falling && it.scale > SHRINK_TO){
+        const t = (performance.now() - it.dropAt) / SHRINK_MS;
+        const target = Math.max(SHRINK_TO, 1 - (1 - SHRINK_TO) * Math.min(1, t));
+        if(target < it.scale){ Body.scale(it.body, target/it.scale, target/it.scale); it.scale = target; }
+      }
+      const {x, y} = it.body.position;
+      it.el.style.transform = `translate(${x - it.w/2}px, ${y - it.h/2}px) rotate(${it.body.angle}rad) scale(${it.scale})`;
+      if(it.falling && !it.landed && it.body.speed < 0.15){ it.landed = true; it.el.classList.add('landed'); }
+    }
+  });
+
+  let side = 0;
+  function spawn(text){
+    const b = bounds();
+    const layer = document.getElementById('dreamLayer');
+    const el = document.createElement('div');
+    el.className = 'dropb new ' + ['c-yellow','c-white','c-blue','c-pink'][Math.floor(Math.random()*4)];
+    el.textContent = text;
+    const leftW = b.gl, rightW = b.vw - b.gr;
+    const useLeft = (side++ % 2 === 0);
+    const regionL = useLeft ? 0 : b.gr, regionW = useLeft ? leftW : rightW;
+    el.style.maxWidth = Math.max(140, Math.min(290, regionW - 24)) + 'px';
+    el.style.visibility = 'hidden';
+    layer.appendChild(el);
+    const w = el.offsetWidth, h = el.offsetHeight;
+    el.style.visibility = '';
+    const x = regionL + regionW/2 + (Math.random()*30 - 15);
+    let y = Math.max(h/2 + 70, b.vh*0.16 + (Math.random()*30));
+    // 那一邊已經堆滿到上面了：直接從畫面上方掉下來
+    const crowded = Query.region(items.map(i=>i.body), { min:{x:x-w/2, y:y-h/2}, max:{x:x+w/2, y:y+h/2} }).length > 0;
+    if(crowded) y = -h;
+    const body = Bodies.rectangle(x, y, w, h, { chamfer:{ radius:16 },
+      restitution:0.25, friction:0.7, frictionStatic:0.9, density:0.002 });
+    if(!crowded) Body.setStatic(body, true);   // 先固定在空中（之後 setStatic(false) 才能正確恢復質量）
+    Composite.add(engine.world, body);
+    const it = { body, el, w, h, falling:false, landed:false, scale:1, dropAt:0 };
+    items.push(it);
+    el.style.transform = `translate(${x - w/2}px, ${y - h/2}px)`;
+    if(crowded){ it.falling = true; it.dropAt = performance.now(); el.classList.remove('new'); checkFull(); return; }
+    setTimeout(()=>{
+      if(!items.includes(it)) return;
+      Body.setStatic(it.body, false);
+      Body.setAngularVelocity(it.body, (Math.random()-.5)*0.08);
+      Body.setVelocity(it.body, { x:(Math.random()-.5)*1.5, y:0 });
+      it.falling = true;
+      it.dropAt = performance.now();
+      el.classList.remove('new');
+      checkFull();
+    }, DREAM_SHOW);
+  }
+  function clear(){
+    clearTimeout(fadeTimer); fadeTimer = null;
+    for(const it of items.splice(0).concat(fading.splice(0))){
+      Composite.remove(engine.world, it.body);
+      it.el.classList.add('pop');
+      setTimeout(()=>it.el.remove(), 480);
+    }
+  }
+  return { spawn, clear, count:()=>items.length };
+})();
+
+function spawnDream(text){
+  if(Phys) Phys.spawn(text);
+  else showBubble(text, true, DREAM_SHOW);      // 萬一物理引擎沒載入，退回原本的樣子
+}
+function clearDreams(){ if(Phys) Phys.clear(); }
+
+function showBubble(text, dream, hideAfter){
+  const b = $('bubble');
+  clearTimeout(bubbleTimer);
+  b.classList.remove('show'); void b.offsetWidth;
+  b.classList.toggle('dream', !!dream);
+  b.textContent = text;
+  b.classList.add('show');
+  if(hideAfter) bubbleTimer = setTimeout(()=>b.classList.remove('show'), hideAfter);
+}
+
+function setState(n, now){
+  if(n === state) return;
+  const rising = n > state;
+  if(state === 0 && n >= 1){ wakeCount++; $('wakeCount').textContent = wakeCount; clearDreams(); }
+  if(n === 4){ rageCount++; $('rageCount').textContent = rageCount; }
+  if(n === 0){ quietSince = now || performance.now(); nextDreamAt = quietSince + DREAM_FIRST; }
+  state = n;
+  document.body.className = document.body.className.replace(/\bs\d\b/g,'').trim() + ' s'+n;
+  bgs.forEach((b,i)=>b.classList.toggle('on', i===n));
+  $('badge').textContent = STATES[n].badge;
+
+  if(rising){
+    const line = pick(STATES[n].lines);
+    showBubble(line, false, 0);
+    say(line, n);
+  }else{
+    showBubble(pick(CALM[n]), false, n === 0 ? 3200 : 0);
+  }
+}
+
+/* ===================== 說話（可關閉） ===================== */
+let lastSpeak = 0;
+function say(text, level){
+  if(!cfg.speak || !('speechSynthesis' in window)) return;
+  const now = performance.now();
+  if(now - lastSpeak < 2500) return;
+  lastSpeak = now;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[—～…！]+/g,'，').replace(/607/g,'六零七'));
+    u.lang = 'zh-TW';
+    const v = speechSynthesis.getVoices().filter(v=>/^zh[-_]TW/i.test(v.lang)).sort((a,b)=>score(b)-score(a))[0];
+    if(v) u.voice = v;
+    u.rate = level >= 4 ? 1.15 : 1.0;
+    u.pitch = level >= 3 ? 0.7 : 0.85;           // 巨人的聲音低一點
+    muteUntil = now + 8000;
+    u.onend = u.onerror = ()=>{ muteUntil = performance.now() + 700; };
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function score(v){
+  const n=v.name||''; let s=0;
+  if(/natural/i.test(n)) s+=100; if(/online|google/i.test(n)) s+=50;
+  if(/premium|enhanced|高品質/i.test(n)) s+=40; if(/美佳|mei-?jia/i.test(n)) s+=20;
+  if(/^(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/i.test(n)) s-=80;
+  return s;
+}
+
+/* ===================== 安靜校正 ===================== */
+function calibrate(){
+  if(!running){ alert('請先按「開始偵測」，再做安靜校正。'); return; }
+  const btn = $('calBtn');
+  btn.disabled = true;
+  const samples = [];
+  const t0 = performance.now();
+  (function tick(){
+    const left = 3 - (performance.now()-t0)/1000;
+    samples.push(rawLevel);
+    if(left > 0){
+      btn.textContent = `🤫 安靜……還剩 ${Math.ceil(left)} 秒`;
+      setTimeout(tick, 50);
+    }else{
+      samples.sort((a,b)=>a-b);
+      const base = samples[Math.floor(samples.length*0.6)];
+      cfg.t = [base+10, base+20, base+30, base+40].map(v=>Math.round(Math.min(99, Math.max(5, v))));
+      for(let j=1;j<4;j++) if(cfg.t[j] <= cfg.t[j-1]) cfg.t[j] = Math.min(99, cfg.t[j-1]+1);
+      syncPanel(); save();
+      btn.textContent = `✅ 校正完成（安靜基準 ${Math.round(base)}）`;
+      setTimeout(()=>{ btn.textContent='🤫 安靜校正（請全班安靜 3 秒）'; btn.disabled=false; }, 2500);
+    }
+  })();
+}
+
+/* ===================== 其他 ===================== */
+function resetStats(){
+  quietMs=0; bestMs=0; wakeCount=0; rageCount=0; quietSince=performance.now();
+  $('quietTime').textContent='00:00'; $('bestTime').textContent='00:00';
+  $('wakeCount').textContent='0'; $('rageCount').textContent='0';
+}
+function toggleFull(){
+  try{
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }catch(e){}
+}
+async function keepAwake(){
+  try{ if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); }catch(e){}
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && running) keepAwake(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ openPanel(false); closeLock(); } });
+
+bindPanel();
+</script>
+</body>
+</html>
